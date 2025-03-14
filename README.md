@@ -151,6 +151,52 @@ src/
 └── index.ts             # Main entry point
 ```
 
+## TODO List
+
+Here are planned improvements for future development:
+
+### UI/UX Improvements
+
+- [ ] Add color support for terminal output using chalk or colors
+- [ ] Add progress indicators for long-running operations using ora
+- [ ] Add command aliases for easier typing (e.g., 'add' for 'add-labels')
+- [ ] Add verbose mode for debugging
+
+### Feature Enhancements
+
+- [ ] Implement label customization before adding to repository
+- [ ] Add label export/import functionality between repositories
+- [ ] Add label deletion functionality
+- [ ] Add configuration file support to save user preferences (Priority for tomorrow)
+  - Create a config manager to handle reading/writing configuration
+  - Store GitHub token securely (optional)
+  - Save favorite/recent repositories
+  - Save custom label templates
+  - Add commands to manage configuration (set, get, reset)
+  - Support for different configuration profiles
+- [ ] Add ability to update existing labels
+- [ ] Create a community-driven label registry
+  - Allow users to publish their label templates to a central registry
+  - Browse and download label templates created by the community
+  - Rate and comment on community templates
+  - Categories/tags for different types of projects (web, mobile, open source, etc.)
+  - Version control for templates
+  - Search functionality to find templates
+
+### Code Quality
+
+- [ ] Improve error handling with more specific error types
+- [ ] Add unit tests for new features
+- [ ] Add input validation for user inputs
+- [ ] Implement logging system for better debugging
+
+### Documentation
+
+- [ ] Add JSDoc comments to all functions
+- [ ] Create a detailed API documentation
+- [ ] Add examples for common use cases
+- [ ] Create a contributing guide
+
 ## License
 
 MIT
