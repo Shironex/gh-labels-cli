@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-import inquirer from "inquirer";
-import ora from "ora";
-import { Octokit } from "@octokit/rest";
-import { RequestError } from "@octokit/request-error";
-import { config } from "dotenv";
-import { logger } from "@/utils/logger";
-import { PublicError } from "@/utils/errors";
-import { GithubLabel } from "@/types";
-import labelsData from "../json/labels.json"
+import inquirer from 'inquirer';
+import ora from 'ora';
+import { Octokit } from '@octokit/rest';
+import { RequestError } from '@octokit/request-error';
+import { config } from 'dotenv';
+import { logger } from '@/utils/logger';
+import { PublicError } from '@/utils/errors';
+import { GithubLabel } from '@/types';
+import labelsData from '../json/labels.json';
 
 config();
 
@@ -18,7 +18,7 @@ class GitHubManager {
     const githubToken = token || process.env.GITHUB_TOKEN;
 
     if (!githubToken) {
-      logger.error("GitHub token is required.");
+      logger.error('GitHub token is required.');
       process.exit(1);
     }
 
@@ -33,7 +33,7 @@ class GitHubManager {
     try {
       return labelsData;
     } catch (error) {
-      throw new PublicError("Failed to load labels from labels.json.");
+      throw new PublicError('Failed to load labels from labels.json.');
     }
   }
 
@@ -42,10 +42,10 @@ class GitHubManager {
 
     const { selectedLabels } = await inquirer.prompt([
       {
-        type: "checkbox",
-        name: "selectedLabels",
-        message: "Select labels to add:",
-        choices: labels.map((label) => ({
+        type: 'checkbox',
+        name: 'selectedLabels',
+        message: 'Select labels to add:',
+        choices: labels.map(label => ({
           name: `${label.name} - ${label.description}`,
           value: label,
         })),
@@ -53,7 +53,7 @@ class GitHubManager {
     ]);
 
     if (selectedLabels.length === 0) {
-      throw new PublicError("No labels were selected.");
+      throw new PublicError('No labels were selected.');
     }
 
     return selectedLabels;
@@ -64,18 +64,18 @@ class GitHubManager {
     const { data: repos } = await this.octokit.repos.listForAuthenticatedUser();
 
     spinner.succeed();
-    logger.success("Done!");
+    logger.success('Done!');
 
     if (repos.length === 0) {
-      throw new PublicError("No repositories found.");
+      throw new PublicError('No repositories found.');
     }
 
     const { selectedRepo } = await inquirer.prompt([
       {
-        type: "list",
-        name: "selectedRepo",
-        message: "Select a repository:",
-        choices: repos.map((repo) => ({
+        type: 'list',
+        name: 'selectedRepo',
+        message: 'Select a repository:',
+        choices: repos.map(repo => ({
           name: repo.full_name,
           value: repo.full_name,
         })),
@@ -90,7 +90,7 @@ class GitHubManager {
       logger.info(`Adding labels to repository: ${repoFullName}\n`);
 
       const selectedLabels = await this.selectLabels();
-      const [owner, repo] = repoFullName.split("/");
+      const [owner, repo] = repoFullName.split('/');
 
       for (const label of selectedLabels) {
         try {
@@ -106,29 +106,21 @@ class GitHubManager {
         } catch (error: any) {
           if (error instanceof RequestError) {
             if (error.status === 422) {
-              logger.warning(
-                `Label "${label.name}" already exists. Skipping...`
-              );
+              logger.warning(`Label "${label.name}" already exists. Skipping...`);
               return;
             }
-            
-            logger.error(
-              `GitHub API error (${error.status}): ${error.message}`
-            );
+
+            logger.error(`GitHub API error (${error.status}): ${error.message}`);
           } else {
             logger.error(
-              `Unexpected error: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`
+              `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
             );
           }
         }
       }
     } catch (error: unknown) {
       throw new PublicError(
-        `Failed to add labels: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
+        `Failed to add labels: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
