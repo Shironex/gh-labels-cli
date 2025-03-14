@@ -89,7 +89,7 @@ class GitHubManager {
 
   async addLabels(repoFullName: string): Promise<void> {
     try {
-      logger.info(`📌 Adding labels to repository: ${repoFullName}\n`);
+      logger.info(`Adding labels to repository: ${repoFullName}\n`);
 
       const selectedLabels = await this.selectLabels();
       const [owner, repo] = repoFullName.split("/");
@@ -104,22 +104,22 @@ class GitHubManager {
             description: label.description,
           });
 
-          logger.success(`✅ Label "${label.name}" added successfully!`);
+          logger.success(`Label "${label.name}" added successfully!`);
         } catch (error: any) {
           if (error instanceof RequestError) {
             if (error.status === 422) {
               logger.warning(
-                `⚠️ Label "${label.name}" already exists. Skipping...`
+                `Label "${label.name}" already exists. Skipping...`
               );
               return;
             }
             
             logger.error(
-              `❌ GitHub API error (${error.status}): ${error.message}`
+              `GitHub API error (${error.status}): ${error.message}`
             );
           } else {
             logger.error(
-              `❌ Unexpected error: ${
+              `Unexpected error: ${
                 error instanceof Error ? error.message : "Unknown error"
               }`
             );
