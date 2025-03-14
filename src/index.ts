@@ -11,12 +11,21 @@ program
   .version('1.0.0')
   .option('-t, --token <token>', 'GitHub Personal Access Token');
 
-program.command('add').description('Add labels to a GitHub repository').action(addLabelsAction);
+program
+  .command('add-labels')
+  .description('Add labels to a GitHub repository')
+  .action(() => {
+    const options = program.opts();
+    addLabelsAction(options.token);
+  });
 
 program
   .command('get-labels')
   .description('Get all labels from a GitHub repository in JSON format')
-  .action(getLabelsAction);
+  .action(() => {
+    const options = program.opts();
+    getLabelsAction(options.token);
+  });
 
 program.command('help').description('Display all available commands').action(helpAction);
 

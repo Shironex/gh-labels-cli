@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { interactiveMode } from '../../src/commands/interactive';
-import { addLabelsAction } from '../../src/commands/add';
+import { addLabelsAction } from '../../src/commands/add-labels';
 import { getLabelsAction } from '../../src/commands/get-labels';
 import { helpAction } from '../../src/commands/help';
 import inquirer from 'inquirer';
 import { mockExit } from '../setup';
 
 // Mock dependencies
-vi.mock('../../src/commands/add', () => ({
+vi.mock('../../src/commands/add-labels', () => ({
   addLabelsAction: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -31,33 +31,49 @@ vi.mock('../../src/utils/logger', () => ({
 describe('Interactive Mode', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Clear environment variables before each test
+    delete process.env.GITHUB_TOKEN;
   });
 
   afterEach(() => {
     vi.resetAllMocks();
   });
 
-  it('should call addLabelsAction when add command is selected', async () => {
+  it('should call addLabelsAction when add-labels command is selected', async () => {
+    // First mock the command selection
     (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'add',
+      command: 'add-labels',
+    });
+
+    // Then mock the token prompt
+    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      token: 'mock-token',
     });
 
     await interactiveMode();
 
     expect(addLabelsAction).toHaveBeenCalledTimes(1);
+    expect(addLabelsAction).toHaveBeenCalledWith('mock-token');
     expect(getLabelsAction).not.toHaveBeenCalled();
     expect(helpAction).not.toHaveBeenCalled();
     expect(mockExit).not.toHaveBeenCalled();
   });
 
   it('should call getLabelsAction when get-labels command is selected', async () => {
+    // First mock the command selection
     (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       command: 'get-labels',
+    });
+
+    // Then mock the token prompt
+    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      token: 'mock-token',
     });
 
     await interactiveMode();
 
     expect(getLabelsAction).toHaveBeenCalledTimes(1);
+    expect(getLabelsAction).toHaveBeenCalledWith('mock-token');
     expect(addLabelsAction).not.toHaveBeenCalled();
     expect(helpAction).not.toHaveBeenCalled();
     expect(mockExit).not.toHaveBeenCalled();

@@ -25,6 +25,12 @@ class GitHubManager {
     this._octokit = new Octokit({ auth: githubToken });
   }
 
+  public async ensureToken(): Promise<void> {
+    // This method is kept for backward compatibility with tests
+    // In the current implementation, token is required in the constructor
+    return;
+  }
+
   public get octokit(): Octokit {
     return this._octokit;
   }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { addLabelsAction } from '../../src/commands/add';
+import { addLabelsAction } from '../../src/commands/add-labels';
 import { getLabelsAction } from '../../src/commands/get-labels';
 import { helpAction } from '../../src/commands/help';
 import { GitHubManager } from '../../src/lib/github';
@@ -86,7 +86,7 @@ describe('Commands', () => {
 
       expect(mockConsoleLog).toHaveBeenCalledTimes(5);
       expect(mockConsoleLog).toHaveBeenCalledWith('Available commands:');
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('add'));
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('add-labels'));
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('get-labels'));
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('help'));
     });
