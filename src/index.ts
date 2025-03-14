@@ -1,7 +1,9 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
-import { logger } from "./utils/logger";
-import { GitHubManager } from "./lib/github";
-import { PublicError } from "./utils/errors";
+import { logger } from "@/utils/logger";
+import { GitHubManager } from "@/lib/github";
+import { PublicError } from "@/utils/errors";
 
 const program = new Command();
 

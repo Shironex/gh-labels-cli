@@ -1,5 +1,4 @@
-import path from "path";
-import fs from "fs";
+#!/usr/bin/env node
 import inquirer from "inquirer";
 import ora from "ora";
 import { Octokit } from "@octokit/rest";
@@ -8,6 +7,7 @@ import { config } from "dotenv";
 import { logger } from "@/utils/logger";
 import { PublicError } from "@/utils/errors";
 import { GithubLabel } from "@/types";
+import labelsData from "../json/labels.json"
 
 config();
 
@@ -31,9 +31,7 @@ class GitHubManager {
 
   async getLabelsFromJSON(): Promise<GithubLabel[]> {
     try {
-      const filePath = path.join(__dirname, "../json/labels.json");
-      const data = fs.readFileSync(filePath, "utf-8");
-      return JSON.parse(data);
+      return labelsData;
     } catch (error) {
       throw new PublicError("Failed to load labels from labels.json.");
     }

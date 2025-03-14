@@ -3,15 +3,20 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "moduleResolution": "node",
-    "module": "esnext",
-    "target": "es2017",
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "esModuleInterop": true,
+    "composite": false,
     "sourceMap": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "isolatedModules": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["node_modules", "test/fixtures"]
 }

@@ -1,16 +1,17 @@
 {
   "name": "gh-labels-cli",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "bin": {
-    "gh-labels": "dist/index.js"
+    "gh-labels": "src/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup",
     "start": "node dist/index.js",
     "start:dev": "tsx src/index.ts"
   },
@@ -27,6 +28,7 @@
     "@types/dotenv": "^8.2.3",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^22.13.10",
+    "tsup": "^8.0.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }
