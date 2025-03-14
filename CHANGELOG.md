@@ -1,3 +1,13 @@
+# 1.0.0 (2025-03-14)
+
+
+### Features
+
+* add @octokit/request-error dependency and improve error handling in GitHubManager ([df6928e](https://github.com/Shironex/gh-labels-cli/commit/df6928e9e1d19aa446d9339798718ecdacbe9226))
+* add convencional commit and husky support ([2f7e8ef](https://github.com/Shironex/gh-labels-cli/commit/2f7e8ef8adb2c4a9fb2eb99e77ef65dd58b5f8c5))
+* add ESLint configuration and scripts for linting TypeScript code ([1da03f9](https://github.com/Shironex/gh-labels-cli/commit/1da03f9ad6fcb72a1cb9cf8a961b780e6f88e3dc))
+* add label management functionality to GitHub labels CLI ([a8f3897](https://github.com/Shironex/gh-labels-cli/commit/a8f389799c3556e7cab7b3a20d1536c8aeb309bb))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
