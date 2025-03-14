@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Uruchom lint-staged
+npx lint-staged
+
+# Sprawdź, czy projekt się buduje
+echo "Sprawdzanie, czy projekt się buduje..."
+pnpm build || (echo "Błąd budowania projektu!" && exit 1) 
