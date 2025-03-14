@@ -15,6 +15,7 @@
     "start:dev": "tsx src/index.ts"
   },
   "dependencies": {
+    "@octokit/request-error": "^6.1.7",
     "@octokit/rest": "^21.1.1",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",

@@ -1,11 +1,12 @@
-import { Octokit } from "@octokit/rest";
+import path from "path";
+import fs from "fs";
 import inquirer from "inquirer";
 import ora from "ora";
+import { Octokit } from "@octokit/rest";
+import { RequestError } from "@octokit/request-error";
 import { config } from "dotenv";
 import { logger } from "@/utils/logger";
 import { PublicError } from "@/utils/errors";
-import fs from "fs";
-import path from "path";
 import { GithubLabel } from "@/types";
 
 config();
@@ -104,33 +105,33 @@ class GitHubManager {
           });
 
           logger.success(`✅ Label "${label.name}" added successfully!`);
-        } catch (error) {
-          if (error instanceof Error && "status" in error) {
-            const status = (error as { status: number }).status;
-
-            if (status === 422) {
+        } catch (error: any) {
+          if (error instanceof RequestError) {
+            if (error.status === 422) {
               logger.warning(
-                `Label "${label.name}" already exists. Skipping...`
+                `⚠️ Label "${label.name}" already exists. Skipping...`
               );
-              continue;
-            } else {
-              logger.error(
-                `GitHub API error (${status}) while adding "${label.name}": ${error.message}`
-              );
-              throw error;
+              return;
             }
+            
+            logger.error(
+              `❌ GitHub API error (${error.status}): ${error.message}`
+            );
           } else {
             logger.error(
-              `Unexpected error while adding "${label.name}": ${
-                error instanceof Error ? error.message : String(error)
+              `❌ Unexpected error: ${
+                error instanceof Error ? error.message : "Unknown error"
               }`
             );
-            throw error;
           }
         }
       }
     } catch (error: unknown) {
-      throw error;
+      throw new PublicError(
+        `Failed to add labels: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
 }
