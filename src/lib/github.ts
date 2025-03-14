@@ -37,6 +37,33 @@ class GitHubManager {
     }
   }
 
+  async getLabelsFromRepo(repoFullName: string): Promise<GithubLabel[]> {
+    try {
+      const spinner = ora(`Fetching labels from repository: ${repoFullName} ...`).start();
+      const [owner, repo] = repoFullName.split('/');
+
+      const { data: labels } = await this.octokit.issues.listLabelsForRepo({
+        owner,
+        repo,
+        per_page: 100,
+      });
+
+      spinner.succeed();
+      logger.success('Labels fetched successfully!');
+
+      // Mapowanie danych, aby zawierały tylko name, color i description
+      return labels.map(label => ({
+        name: label.name,
+        color: label.color,
+        description: label.description || '',
+      }));
+    } catch (error) {
+      throw new PublicError(
+        `Failed to fetch labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
   async selectLabels(): Promise<GithubLabel[]> {
     const labels = await this.getLabelsFromJSON();
 
@@ -107,7 +134,7 @@ class GitHubManager {
           if (error instanceof RequestError) {
             if (error.status === 422) {
               logger.warning(`Label "${label.name}" already exists. Skipping...`);
-              return;
+              continue;
             }
 
             logger.error(`GitHub API error (${error.status}): ${error.message}`);

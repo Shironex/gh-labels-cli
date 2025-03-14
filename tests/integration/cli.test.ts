@@ -1,21 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import nock from 'nock';
 import { GitHubManager } from '../../src/lib/github';
+import { setupGitHubToken, setupNock, cleanupNock } from '../setup';
 
-//? Mock modules
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: vi.fn(),
-  },
-}));
-
-vi.mock('ora', () => ({
-  default: vi.fn(() => ({
-    start: vi.fn().mockReturnThis(),
-    succeed: vi.fn(),
-  })),
-}));
-
+// Mock dla loggera
 vi.mock('../../src/utils/logger', () => ({
   logger: {
     success: vi.fn(),
@@ -25,25 +13,19 @@ vi.mock('../../src/utils/logger', () => ({
   },
 }));
 
-//? Mock process.exit
-vi.spyOn(process, 'exit').mockImplementation(code => {
-  throw new Error(`Process.exit called with code: ${code}`);
-});
-
 describe('CLI Integration', () => {
   beforeEach(() => {
     //? Set up environment
-    process.env.GITHUB_TOKEN = 'mock-token';
+    setupGitHubToken();
 
     //? Set up nock to intercept HTTP requests
-    nock.disableNetConnect();
+    setupNock();
   });
 
   afterEach(() => {
     //? Clean up
     vi.clearAllMocks();
-    nock.cleanAll();
-    nock.enableNetConnect();
+    cleanupNock();
   });
 
   it('should execute the main CLI flow', async () => {

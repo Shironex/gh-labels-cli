@@ -12,6 +12,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: ['**/node_modules/**', '**/test/**', '**/*.d.ts', '**/*.config.ts'],
     },
+    setupFiles: ['./tests/setup.ts'],
   },
   resolve: {
     alias: {

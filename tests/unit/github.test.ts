@@ -3,21 +3,9 @@ import { GitHubManager } from '../../src/lib/github';
 import { PublicError } from '../../src/utils/errors';
 import nock from 'nock';
 import labelsData from '../../src/json/labels.json';
+import { setupGitHubToken, setupNock, cleanupNock, mockExit } from '../setup';
 
-//? Mock modules
-vi.mock('inquirer', () => ({
-  default: {
-    prompt: vi.fn(),
-  },
-}));
-
-vi.mock('ora', () => ({
-  default: vi.fn(() => ({
-    start: vi.fn().mockReturnThis(),
-    succeed: vi.fn(),
-  })),
-}));
-
+// Mock dla loggera
 vi.mock('../../src/utils/logger', () => ({
   logger: {
     success: vi.fn(),
@@ -27,11 +15,6 @@ vi.mock('../../src/utils/logger', () => ({
   },
 }));
 
-//? Mock process.exit
-const mockExit = vi.spyOn(process, 'exit').mockImplementation(code => {
-  throw new Error(`Process.exit called with code: ${code}`);
-});
-
 describe('GitHubManager', () => {
   let manager: GitHubManager;
   const mockToken = 'mock-token';
@@ -39,20 +22,19 @@ describe('GitHubManager', () => {
 
   beforeEach(() => {
     // Set up environment
-    process.env.GITHUB_TOKEN = mockToken;
+    setupGitHubToken();
 
     // Create a new instance for each test
     manager = new GitHubManager();
 
     // Set up nock to intercept HTTP requests
-    nock.disableNetConnect();
+    setupNock();
   });
 
   afterEach(() => {
     // Clean up
     vi.clearAllMocks();
-    nock.cleanAll();
-    nock.enableNetConnect();
+    cleanupNock();
   });
 
   describe('constructor', () => {
@@ -180,6 +162,79 @@ describe('GitHubManager', () => {
       //? Verify that the logger.warning was called
       const logger = await import('../../src/utils/logger');
       expect(logger.logger.warning).toHaveBeenCalledWith(expect.stringContaining('already exists'));
+    });
+  });
+
+  describe('getLabelsFromRepo', () => {
+    const repoFullName = 'user/repo';
+    const mockLabels = [
+      {
+        id: 123,
+        node_id: 'node123',
+        url: 'https://api.github.com/repos/user/repo/labels/bug',
+        name: 'bug',
+        color: 'ff0000',
+        default: true,
+        description: 'Bug report',
+      },
+      {
+        id: 456,
+        node_id: 'node456',
+        url: 'https://api.github.com/repos/user/repo/labels/feature',
+        name: 'feature',
+        color: '00ff00',
+        default: false,
+        description: 'New feature',
+      },
+    ];
+
+    it('should fetch labels from repository and return simplified format', async () => {
+      // Mock GitHub API response
+      nock(githubApiUrl)
+        .get(`/repos/${repoFullName}/labels`)
+        .query({ per_page: 100 })
+        .reply(200, mockLabels);
+
+      const result = await manager.getLabelsFromRepo(repoFullName);
+
+      // Verify the result contains only name, color and description
+      expect(result).toEqual([
+        { name: 'bug', color: 'ff0000', description: 'Bug report' },
+        { name: 'feature', color: '00ff00', description: 'New feature' },
+      ]);
+    });
+
+    it('should handle empty description', async () => {
+      const labelsWithEmptyDesc = [
+        {
+          id: 789,
+          node_id: 'node789',
+          url: 'https://api.github.com/repos/user/repo/labels/docs',
+          name: 'docs',
+          color: '0000ff',
+          default: false,
+          description: null,
+        },
+      ];
+
+      nock(githubApiUrl)
+        .get(`/repos/${repoFullName}/labels`)
+        .query({ per_page: 100 })
+        .reply(200, labelsWithEmptyDesc);
+
+      const result = await manager.getLabelsFromRepo(repoFullName);
+
+      // Verify empty description is replaced with empty string
+      expect(result).toEqual([{ name: 'docs', color: '0000ff', description: '' }]);
+    });
+
+    it('should throw PublicError when API request fails', async () => {
+      nock(githubApiUrl)
+        .get(`/repos/${repoFullName}/labels`)
+        .query({ per_page: 100 })
+        .reply(404, { message: 'Not found' });
+
+      await expect(manager.getLabelsFromRepo(repoFullName)).rejects.toThrow(PublicError);
     });
   });
 });
