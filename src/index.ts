@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { selectRepository } from "./repoSelector";
 import { getGitHubClient } from "./github";
+import { addLabels } from "./labelManager";
 
 const program = new Command();
 
@@ -13,6 +14,8 @@ program
     const octokit = getGitHubClient(options.token);
     const selectedRepo = await selectRepository(octokit);
     console.log(`✅ Selected Repository: ${selectedRepo}`);
+
+    await addLabels(octokit, selectedRepo);
   });
 
 program.parse(process.argv);
