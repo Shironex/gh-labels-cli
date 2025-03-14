@@ -18,7 +18,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "prepare": "echo 'Husky disabled in CI'",
+    "prepare": "husky",
     "commitlint": "commitlint --edit",
     "commit": "cz",
     "release": "semantic-release",
