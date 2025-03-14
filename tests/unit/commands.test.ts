@@ -4,7 +4,6 @@ import { getLabelsAction } from '../../src/commands/get-labels';
 import { helpAction } from '../../src/commands/help';
 import { GitHubManager } from '../../src/lib/github';
 import { PublicError } from '../../src/utils/errors';
-import { mockConsole, restoreConsole } from '../setup';
 
 // Mock dependencies
 vi.mock('../../src/lib/github', () => ({
