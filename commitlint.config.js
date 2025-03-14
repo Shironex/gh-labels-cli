@@ -23,4 +23,5 @@ export default {
       ],
     ],
   },
+  ignores: [commit => commit.includes('[skip ci]') || commit.includes('chore(release)')],
 };

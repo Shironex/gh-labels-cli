@@ -40,6 +40,11 @@ jobs:
       - name: Build project
         run: pnpm build
 
+      - name: Disable Husky
+        run: |
+          npm pkg set scripts.prepare="echo 'Husky disabled in CI'"
+          git config --global core.hooksPath /dev/null
+
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
         with:
@@ -53,3 +58,4 @@ jobs:
             @semantic-release/git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: 0
