@@ -1,6 +1,6 @@
 {
   "name": "gh-labels-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "src/index.js",
   "type": "module",
   "keywords": [],
@@ -18,7 +18,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "prepare": "husky",
+    "prepare": "echo 'Husky disabled in CI'",
     "commitlint": "commitlint --edit",
     "commit": "cz",
     "release": "semantic-release",

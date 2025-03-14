@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Shironex/gh-labels-cli/compare/v1.0.0...v1.1.0) (2025-03-14)
+
+
+### Features
+
+* enhance GitHub labels CLI with interactive mode and new commands ([a2ac1b1](https://github.com/Shironex/gh-labels-cli/commit/a2ac1b1986d6b70ea0ce752cdda11aaa999bf8d9))
+
 # 1.0.0 (2025-03-14)
 
 
