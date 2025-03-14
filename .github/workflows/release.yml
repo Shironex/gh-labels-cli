@@ -31,6 +31,14 @@ jobs:
       - name: Build project
         run: pnpm build
 
+      - name: Create ZIP archive of dist directory
+        run: |
+          cd dist
+          zip -r ../gh-labels-cli.zip .
+          cd ..
+          echo "Created gh-labels-cli.zip with the following contents:"
+          unzip -l gh-labels-cli.zip
+
       - name: Disable Husky
         run: |
           npm pkg set scripts.prepare="echo 'Husky disabled in CI'"

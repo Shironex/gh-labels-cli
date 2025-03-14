@@ -27,8 +27,8 @@
       {
         "assets": [
           {
-            "path": "dist/**/*",
-            "label": "Built project (dist)"
+            "path": "gh-labels-cli.zip",
+            "label": "gh-labels-cli (ZIP archive)"
           }
         ]
       }
