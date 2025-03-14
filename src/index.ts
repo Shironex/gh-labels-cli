@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import { selectRepository } from "./repoSelector";
-import { getGitHubClient } from "./github";
-import { addLabels } from "./labelManager";
+import { logger } from "./utils/logger";
+import { GitHubManager } from "./lib/github";
+import { PublicError } from "./utils/errors";
 
 const program = new Command();
 
@@ -11,11 +11,24 @@ program
   .version("1.0.0")
   .option("-t, --token <token>", "GitHub Personal Access Token")
   .action(async (options) => {
-    const octokit = getGitHubClient(options.token);
-    const selectedRepo = await selectRepository(octokit);
-    console.log(`✅ Selected Repository: ${selectedRepo}`);
+    try {
+      const manager = new GitHubManager();
 
-    await addLabels(octokit, selectedRepo);
+      const selectedRepo = await manager.selectRepository();
+
+      logger.info(`Selected Repository: ${selectedRepo}`);
+
+      await manager.addLabels(selectedRepo);
+    } catch (error) {
+      if (error instanceof PublicError) {
+        throw error;
+      }
+      throw new PublicError(
+        `Error fetching repositories: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
   });
 
 program.parse(process.argv);
