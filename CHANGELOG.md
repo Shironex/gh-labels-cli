@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/Shironex/gh-labels-cli/compare/v1.1.0...v1.2.0) (2025-03-15)
+
+
+### Features
+
+* **ci:** add documentation build and deploy workflow ([03c2abb](https://github.com/Shironex/gh-labels-cli/commit/03c2abb855e9b47836cc39abc796aab1b09c2d6b))
+
 # [1.1.0](https://github.com/Shironex/gh-labels-cli/compare/v1.0.0...v1.1.0) (2025-03-14)
 
 
