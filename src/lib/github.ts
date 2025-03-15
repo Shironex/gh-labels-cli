@@ -5,7 +5,16 @@ import { Octokit } from '@octokit/rest';
 import { RequestError } from '@octokit/request-error';
 import { config } from 'dotenv';
 import { logger } from '@/utils/logger';
-import { PublicError } from '@/utils/errors';
+import {
+  AuthenticationError,
+  NoRepositoriesFoundError,
+  NoLabelsFoundError,
+  NoLabelsSelectedError,
+  LabelExistsError,
+  LabelNotFoundError,
+  GitHubApiError,
+  JsonParseError,
+} from '@/utils/errors';
 import { GithubLabel } from '@/types';
 import labelsData from '../json/labels.json';
 
@@ -20,7 +29,7 @@ class GitHubManager {
 
     if (!githubToken) {
       logger.error('GitHub token is required.');
-      process.exit(1);
+      throw new AuthenticationError();
     }
 
     this._octokit = new Octokit({ auth: githubToken });
@@ -45,7 +54,7 @@ class GitHubManager {
       logger.debug(
         `Failed to load labels.json: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
-      throw new PublicError('Failed to load labels from labels.json.');
+      throw new JsonParseError(error instanceof Error ? error.message : 'Unknown error');
     }
   }
 
@@ -66,7 +75,6 @@ class GitHubManager {
       spinner.succeed();
       logger.success('Labels fetched successfully!');
 
-      // Mapowanie danych, aby zawierały tylko name, color i description
       return labels.map(label => ({
         name: label.name,
         color: label.color,
@@ -76,9 +84,10 @@ class GitHubManager {
       logger.debug(
         `Error fetching labels: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
-      throw new PublicError(
-        `Failed to fetch labels: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      if (error instanceof RequestError) {
+        throw new GitHubApiError(error.message, error.status);
+      }
+      throw error;
     }
   }
 
@@ -98,7 +107,7 @@ class GitHubManager {
     ]);
 
     if (selectedLabels.length === 0) {
-      throw new PublicError('No labels were selected.');
+      throw new NoLabelsSelectedError('No labels were selected.');
     }
 
     return selectedLabels;
@@ -106,32 +115,42 @@ class GitHubManager {
 
   async selectRepository(): Promise<string> {
     logger.debug('Fetching repositories for authenticated user');
-    const spinner = ora(`Fetching repositories ...`).start();
-    const { data: repos } = await this.octokit.repos.listForAuthenticatedUser();
+    try {
+      const spinner = ora(`Fetching repositories ...`).start();
+      const { data: repos } = await this.octokit.repos.listForAuthenticatedUser();
 
-    logger.debug(`Found ${repos.length} repositories`);
-    spinner.succeed();
-    logger.success('Done!');
+      logger.debug(`Found ${repos.length} repositories`);
+      spinner.succeed();
+      logger.success('Done!');
 
-    if (repos.length === 0) {
-      logger.debug('No repositories found for the authenticated user');
-      throw new PublicError('No repositories found.');
+      if (repos.length === 0) {
+        logger.debug('No repositories found for the authenticated user');
+        throw new NoRepositoriesFoundError();
+      }
+
+      const { selectedRepo } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'selectedRepo',
+          message: 'Select a repository:',
+          choices: repos.map(repo => ({
+            name: repo.full_name,
+            value: repo.full_name,
+          })),
+        },
+      ]);
+
+      logger.debug(`Selected repository: ${selectedRepo}`);
+      return selectedRepo;
+    } catch (error) {
+      if (error instanceof RequestError) {
+        if (error.status === 401) {
+          throw new AuthenticationError();
+        }
+        throw new GitHubApiError(error.message, error.status);
+      }
+      throw error;
     }
-
-    const { selectedRepo } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'selectedRepo',
-        message: 'Select a repository:',
-        choices: repos.map(repo => ({
-          name: repo.full_name,
-          value: repo.full_name,
-        })),
-      },
-    ]);
-
-    logger.debug(`Selected repository: ${selectedRepo}`);
-    return selectedRepo;
   }
 
   async selectLabelsToDelete(repoFullName: string): Promise<string[]> {
@@ -140,7 +159,7 @@ class GitHubManager {
 
     if (labels.length === 0) {
       logger.debug('No labels found in repository');
-      throw new PublicError('No labels found in repository.');
+      throw new NoLabelsFoundError();
     }
 
     const { selectedLabels } = await inquirer.prompt([
@@ -157,7 +176,7 @@ class GitHubManager {
 
     if (!selectedLabels.length) {
       logger.debug('No labels were selected for deletion');
-      throw new PublicError('No labels were selected for deletion.');
+      throw new NoLabelsSelectedError('No labels were selected for deletion.');
     }
 
     logger.debug(`Selected ${selectedLabels.length} labels for deletion`);
@@ -183,35 +202,27 @@ class GitHubManager {
             name: labelName,
           });
           logger.success(`Label "${labelName}" deleted successfully!`);
-        } catch (error: any) {
+        } catch (error) {
           if (error instanceof RequestError) {
             if (error.status === 404) {
               logger.debug(`Label "${labelName}" not found in repository`);
-              logger.warning(`Label "${labelName}" not found. Skipping...`);
-              continue;
+              throw new LabelNotFoundError(labelName);
             }
-
-            logger.debug(`GitHub API error (${error.status}): ${error.message}`);
-            logger.error(`GitHub API error (${error.status}): ${error.message}`);
-          } else {
-            logger.debug(
-              `Unexpected error while deleting label "${labelName}": ${error instanceof Error ? error.message : 'Unknown error'}`
-            );
-            logger.error(
-              `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
-            );
+            throw new GitHubApiError(error.message, error.status);
           }
+          throw error;
         }
       }
 
       spinner.succeed('Labels deletion completed!');
-    } catch (error: unknown) {
-      logger.debug(
-        `Failed to delete labels: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-      throw new PublicError(
-        `Failed to delete labels: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+    } catch (error) {
+      if (error instanceof RequestError) {
+        if (error.status === 404) {
+          throw new LabelNotFoundError(error.message);
+        }
+        throw new GitHubApiError(error.message, error.status);
+      }
+      throw error;
     }
   }
 
@@ -236,33 +247,25 @@ class GitHubManager {
           });
 
           logger.success(`Label "${label.name}" added successfully!`);
-        } catch (error: any) {
+        } catch (error) {
           if (error instanceof RequestError) {
             if (error.status === 422) {
               logger.debug(`Label "${label.name}" already exists in repository`);
-              logger.warning(`Label "${label.name}" already exists. Skipping...`);
-              continue;
+              throw new LabelExistsError(label.name);
             }
-
-            logger.debug(`GitHub API error (${error.status}): ${error.message}`);
-            logger.error(`GitHub API error (${error.status}): ${error.message}`);
-          } else {
-            logger.debug(
-              `Unexpected error while adding label "${label.name}": ${error instanceof Error ? error.message : 'Unknown error'}`
-            );
-            logger.error(
-              `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
-            );
+            throw new GitHubApiError(error.message, error.status);
           }
+          throw error;
         }
       }
-    } catch (error: unknown) {
-      logger.debug(
-        `Failed to add labels: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-      throw new PublicError(
-        `Failed to add labels: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+    } catch (error) {
+      if (error instanceof RequestError) {
+        if (error.status === 422) {
+          throw new LabelExistsError(error.message);
+        }
+        throw new GitHubApiError(error.message, error.status);
+      }
+      throw error;
     }
   }
 }

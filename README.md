@@ -192,10 +192,9 @@ Here are planned improvements for future development:
 
 ### Code Quality
 
-- [ ] Improve error handling with more specific error types
-- [ ] Add unit tests for new features
+- [x] Improve error handling with more specific error types
 - [ ] Add input validation for user inputs
-- [ ] Implement logging system for better debugging
+- [x] Implement logging system for better debugging
 
 ### Documentation
 

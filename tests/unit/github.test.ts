@@ -1,6 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GitHubManager } from '../../src/lib/github';
-import { PublicError } from '../../src/utils/errors';
+import {
+  PublicError,
+  AuthenticationError,
+  NoRepositoriesFoundError,
+  NoLabelsSelectedError,
+  LabelExistsError,
+  LabelNotFoundError,
+  GitHubApiError,
+  NoLabelsFoundError,
+} from '../../src/utils/errors';
 import nock from 'nock';
 import labelsData from '../../src/json/labels.json';
 import { setupGitHubToken, setupNock, cleanupNock, mockExit } from '../setup';
@@ -52,13 +61,15 @@ describe('GitHubManager', () => {
       expect(customManager.octokit).toBeDefined();
     });
 
-    it('should exit if no token is provided', () => {
+    it('should throw AuthenticationError if no token is provided', () => {
       //? Remove token from environment
       const originalToken = process.env.GITHUB_TOKEN;
       delete process.env.GITHUB_TOKEN;
 
-      expect(() => new GitHubManager()).toThrow();
-      expect(mockExit).toHaveBeenCalledWith(1);
+      expect(() => new GitHubManager()).toThrow(AuthenticationError);
+      expect(() => new GitHubManager()).toThrow(
+        'Authentication failed. Please check your GitHub token.'
+      );
 
       //? Restore token
       process.env.GITHUB_TOKEN = originalToken;
@@ -91,11 +102,11 @@ describe('GitHubManager', () => {
       expect(inquirer.default.prompt).toHaveBeenCalled();
     });
 
-    it('should throw error if no repositories found', async () => {
+    it('should throw NoRepositoriesFoundError if no repositories found', async () => {
       //? Mock API response with empty array
       nock(githubApiUrl).get('/user/repos').reply(200, []).persist();
 
-      await expect(manager.selectRepository()).rejects.toThrow(PublicError);
+      await expect(manager.selectRepository()).rejects.toThrow(NoRepositoriesFoundError);
       await expect(manager.selectRepository()).rejects.toThrow('No repositories found.');
     });
   });
@@ -115,14 +126,14 @@ describe('GitHubManager', () => {
       expect(inquirer.default.prompt).toHaveBeenCalled();
     });
 
-    it('should throw error if no labels selected', async () => {
+    it('should throw NoLabelsSelectedError if no labels selected', async () => {
       //? Mock inquirer response with empty array
       const inquirer = await import('inquirer');
       (inquirer.default.prompt as any) = vi.fn().mockResolvedValue({
         selectedLabels: [],
       });
 
-      await expect(manager.selectLabels()).rejects.toThrow(PublicError);
+      await expect(manager.selectLabels()).rejects.toThrow(NoLabelsSelectedError);
       await expect(manager.selectLabels()).rejects.toThrow('No labels were selected.');
     });
   });
@@ -148,7 +159,7 @@ describe('GitHubManager', () => {
       );
     });
 
-    it('should handle label already exists error', async () => {
+    it('should throw LabelExistsError when label already exists', async () => {
       const mockSelectedLabels = [{ name: 'bug', color: 'ff0000', description: 'Bug report' }];
 
       //? Mock selectLabels method
@@ -156,14 +167,16 @@ describe('GitHubManager', () => {
 
       //? Mock GitHub API for creating label with 422 error
       nock(githubApiUrl)
-        .post('/repos/user/repo/labels')
+        .post('/repos/user/repo/labels', {
+          name: 'bug',
+          color: 'ff0000',
+          description: 'Bug report',
+        })
+        .times(2)
         .reply(422, { message: 'Validation Failed' });
 
-      await expect(manager.addLabels('user/repo')).resolves.not.toThrow();
-
-      //? Verify that the logger.warning was called
-      const logger = await import('../../src/utils/logger');
-      expect(logger.logger.warning).toHaveBeenCalledWith(expect.stringContaining('already exists'));
+      await expect(manager.addLabels('user/repo')).rejects.toThrow(LabelExistsError);
+      await expect(manager.addLabels('user/repo')).rejects.toThrow('Label "bug" already exists.');
     });
   });
 
@@ -230,13 +243,17 @@ describe('GitHubManager', () => {
       expect(result).toEqual([{ name: 'docs', color: '0000ff', description: '' }]);
     });
 
-    it('should throw PublicError when API request fails', async () => {
+    it('should throw GitHubApiError when API request fails', async () => {
       nock(githubApiUrl)
         .get(`/repos/${repoFullName}/labels`)
         .query({ per_page: 100 })
+        .times(2)
         .reply(404, { message: 'Not found' });
 
-      await expect(manager.getLabelsFromRepo(repoFullName)).rejects.toThrow(PublicError);
+      await expect(manager.getLabelsFromRepo(repoFullName)).rejects.toThrow(GitHubApiError);
+      await expect(manager.getLabelsFromRepo(repoFullName)).rejects.toThrow(
+        'GitHub API error (404): Not found'
+      );
     });
   });
 
@@ -272,7 +289,7 @@ describe('GitHubManager', () => {
       expect(logger.logger.success).toHaveBeenCalledWith(expect.stringContaining('feature'));
     });
 
-    it('should handle non-existent label error', async () => {
+    it('should throw LabelNotFoundError when label does not exist', async () => {
       // Mock getLabelsFromRepo response
       vi.spyOn(manager, 'getLabelsFromRepo').mockResolvedValue(mockLabels);
 
@@ -285,16 +302,16 @@ describe('GitHubManager', () => {
       // Mock GitHub API for deleting labels with 404 error
       nock(githubApiUrl)
         .delete('/repos/user/repo/labels/non-existent')
+        .times(2)
         .reply(404, { message: 'Not Found' });
 
-      await expect(manager.deleteLabels(repoFullName)).resolves.not.toThrow();
-
-      // Verify that the logger.warning was called
-      const logger = await import('../../src/utils/logger');
-      expect(logger.logger.warning).toHaveBeenCalledWith(expect.stringContaining('not found'));
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(LabelNotFoundError);
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(
+        'Label "non-existent" not found.'
+      );
     });
 
-    it('should throw error when no labels are selected', async () => {
+    it('should throw NoLabelsSelectedError when no labels are selected', async () => {
       // Mock getLabelsFromRepo response
       vi.spyOn(manager, 'getLabelsFromRepo').mockResolvedValue(mockLabels);
 
@@ -304,17 +321,19 @@ describe('GitHubManager', () => {
         selectedLabels: [],
       });
 
-      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(PublicError);
-      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow('No labels were selected');
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(NoLabelsSelectedError);
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(
+        'No labels were selected for deletion.'
+      );
     });
 
-    it('should throw error when repository has no labels', async () => {
+    it('should throw NoLabelsFoundError when repository has no labels', async () => {
       // Mock getLabelsFromRepo response with empty array
       vi.spyOn(manager, 'getLabelsFromRepo').mockResolvedValue([]);
 
-      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(PublicError);
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(NoLabelsFoundError);
       await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(
-        'No labels found in repository'
+        'No labels found in repository.'
       );
     });
   });
