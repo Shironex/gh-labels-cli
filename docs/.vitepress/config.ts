@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
   title: 'GitHub Labels CLI',
   description: 'Command-line tool for managing labels in GitHub repositories',
+  base: '/gh-labels-cli/',
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
@@ -50,6 +51,6 @@ export default defineConfig({
       copyright: 'Copyright © 2024',
     },
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/your-username/gh-labels-cli' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/Shironex/gh-labels-cli' }],
   },
 });
