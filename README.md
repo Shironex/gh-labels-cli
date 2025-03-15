@@ -9,7 +9,8 @@ Command-line tool for managing labels in GitHub repositories.
 - Choose labels to add from a predefined list
 - Add selected labels to the repository
 - Get all labels from a repository in JSON format
-- Interactive mode for guided label management
+- Delete labels from a repository
+- Interactive mode for guided label management with help information
 
 ## Installation
 
@@ -47,6 +48,9 @@ gh-labels add-labels -t "your_github_token"
 # Get all labels from a repository in JSON format
 gh-labels get-labels -t "your_github_token"
 
+# Delete labels from a repository
+gh-labels delete-labels -t "your_github_token"
+
 # Display help information
 gh-labels help
 ```
@@ -77,7 +81,8 @@ gh-labels get-labels -t "your_github_token"
 ```bash
 # Run in interactive mode and you'll be prompted for token when needed
 gh-labels
-# Select 'Add labels to a repository' or 'Get labels from a repository in JSON format'
+# Select 'Add labels to a repository', 'Get labels from a repository in JSON format',
+# or 'Delete labels from a repository'
 # You'll be prompted: 'Please enter your GitHub Personal Access Token:'
 ```
 
@@ -92,6 +97,7 @@ pnpm dev
 # For specific commands with token
 pnpm dev get-labels -t "your_github_token"
 pnpm dev add-labels -t "your_github_token"
+pnpm dev delete-labels -t "your_github_token"
 ```
 
 ## Development
@@ -136,6 +142,7 @@ src/
 ├── commands/            # CLI commands implementation
 │   ├── add-labels.ts    # Add labels command
 │   ├── get-labels.ts    # Get labels command
+│   ├── delete-labels.ts # Delete labels command
 │   ├── help.ts          # Help command
 │   ├── index.ts         # Commands exports
 │   └── interactive.ts   # Interactive mode implementation
@@ -166,7 +173,7 @@ Here are planned improvements for future development:
 
 - [ ] Implement label customization before adding to repository
 - [ ] Add label export/import functionality between repositories
-- [ ] Add label deletion functionality
+- [x] Add label deletion functionality
 - [ ] Add configuration file support to save user preferences (Priority for tomorrow)
   - Create a config manager to handle reading/writing configuration
   - Store GitHub token securely (optional)

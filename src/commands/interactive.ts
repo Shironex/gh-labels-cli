@@ -1,7 +1,6 @@
 import inquirer from 'inquirer';
-import { addLabelsAction, getLabelsAction, helpAction } from './index';
+import { addLabelsAction, getLabelsAction, deleteLabelsAction, helpAction } from './index';
 import { config } from 'dotenv';
-import { logger } from '@/utils/logger';
 
 config();
 
@@ -36,40 +35,43 @@ async function getGitHubToken(): Promise<string> {
  * Displays a menu with available commands and executes the selected one
  */
 export async function interactiveMode(): Promise<void> {
-  const { command } = await inquirer.prompt([
+  const { action } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'command',
-      message: 'Select a command:',
+      name: 'action',
+      message: 'What would you like to do?',
       choices: [
         { name: 'Add labels to a repository', value: 'add-labels' },
         { name: 'Get labels from a repository in JSON format', value: 'get-labels' },
-        { name: 'Display available commands', value: 'help' },
+        { name: 'Delete labels from a repository', value: 'delete-labels' },
+        { name: 'Display help information', value: 'help' },
         { name: 'Exit', value: 'exit' },
       ],
     },
   ]);
 
-  switch (command) {
-    case 'exit':
-      process.exit(0);
+  if (action === 'exit') {
+    process.exit(0);
+  }
 
+  if (action === 'help') {
+    helpAction();
+    return;
+  }
+
+  const token = await getGitHubToken();
+
+  switch (action) {
     case 'add-labels':
-      const addToken = await getGitHubToken();
-      await addLabelsAction(addToken);
+      await addLabelsAction(token);
       break;
-
     case 'get-labels':
-      const getLabelsToken = await getGitHubToken();
-      await getLabelsAction(getLabelsToken);
+      await getLabelsAction(token);
       break;
-
-    case 'help':
-      helpAction();
+    case 'delete-labels':
+      await deleteLabelsAction(token);
       break;
-
     default:
-      logger.error('Invalid command');
       process.exit(1);
   }
 }

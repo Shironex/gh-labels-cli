@@ -134,6 +134,87 @@ class GitHubManager {
     return selectedRepo;
   }
 
+  async selectLabelsToDelete(repoFullName: string): Promise<string[]> {
+    logger.debug(`Selecting labels to delete from repository: ${repoFullName}`);
+    const labels = await this.getLabelsFromRepo(repoFullName);
+
+    if (labels.length === 0) {
+      logger.debug('No labels found in repository');
+      throw new PublicError('No labels found in repository.');
+    }
+
+    const { selectedLabels } = await inquirer.prompt([
+      {
+        type: 'checkbox',
+        name: 'selectedLabels',
+        message: 'Select labels to delete:',
+        choices: labels.map(label => ({
+          name: `${label.name} (${label.description || 'No description'})`,
+          value: label.name,
+        })),
+      },
+    ]);
+
+    if (!selectedLabels.length) {
+      logger.debug('No labels were selected for deletion');
+      throw new PublicError('No labels were selected for deletion.');
+    }
+
+    logger.debug(`Selected ${selectedLabels.length} labels for deletion`);
+    return selectedLabels;
+  }
+
+  async deleteLabels(repoFullName: string): Promise<void> {
+    try {
+      logger.info(`Deleting labels from repository: ${repoFullName}\n`);
+      logger.debug(`Starting label deletion process for ${repoFullName}`);
+
+      const selectedLabels = await this.selectLabelsToDelete(repoFullName);
+      const [owner, repo] = repoFullName.split('/');
+
+      const spinner = ora('Deleting labels...').start();
+
+      for (const labelName of selectedLabels) {
+        try {
+          logger.debug(`Attempting to delete label: ${labelName}`);
+          await this.octokit.issues.deleteLabel({
+            owner,
+            repo,
+            name: labelName,
+          });
+          logger.success(`Label "${labelName}" deleted successfully!`);
+        } catch (error: any) {
+          if (error instanceof RequestError) {
+            if (error.status === 404) {
+              logger.debug(`Label "${labelName}" not found in repository`);
+              logger.warning(`Label "${labelName}" not found. Skipping...`);
+              continue;
+            }
+
+            logger.debug(`GitHub API error (${error.status}): ${error.message}`);
+            logger.error(`GitHub API error (${error.status}): ${error.message}`);
+          } else {
+            logger.debug(
+              `Unexpected error while deleting label "${labelName}": ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+            logger.error(
+              `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+          }
+        }
+      }
+
+      spinner.succeed('Labels deletion completed!');
+    } catch (error: unknown) {
+      logger.debug(
+        `Failed to delete labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+      throw new PublicError(
+        `Failed to delete labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
   async addLabels(repoFullName: string): Promise<void> {
     try {
       logger.info(`Adding labels to repository: ${repoFullName}\n`);

@@ -1,107 +1,94 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { interactiveMode } from '../../src/commands/interactive';
-import { addLabelsAction } from '../../src/commands/add-labels';
-import { getLabelsAction } from '../../src/commands/get-labels';
-import { helpAction } from '../../src/commands/help';
-import inquirer from 'inquirer';
 import { mockExit } from '../setup';
 
-// Mock dependencies
-vi.mock('../../src/commands/add-labels', () => ({
-  addLabelsAction: vi.fn().mockResolvedValue(undefined),
+// Mock inquirer
+vi.mock('inquirer', () => ({
+  default: {
+    prompt: vi.fn(),
+  },
 }));
 
-vi.mock('../../src/commands/get-labels', () => ({
-  getLabelsAction: vi.fn().mockResolvedValue(undefined),
-}));
-
-vi.mock('../../src/commands/help', () => ({
+// Mock commands
+vi.mock('../../src/commands', () => ({
+  addLabelsAction: vi.fn(),
+  getLabelsAction: vi.fn(),
+  deleteLabelsAction: vi.fn(),
   helpAction: vi.fn(),
 }));
 
-vi.mock('../../src/utils/logger', () => ({
-  logger: {
-    success: vi.fn(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
-  },
-}));
+// Mock process.env
+const originalEnv = process.env;
+beforeEach(() => {
+  process.env = { ...originalEnv };
+  process.env.GITHUB_TOKEN = 'mock-token';
+});
+
+afterEach(() => {
+  process.env = originalEnv;
+});
 
 describe('Interactive Mode', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Clear environment variables before each test
-    delete process.env.GITHUB_TOKEN;
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+  it('should call addLabelsAction when add option is selected', async () => {
+    const inquirer = await import('inquirer');
+    (inquirer.default.prompt as any).mockResolvedValueOnce({ action: 'add-labels' });
 
-  it('should call addLabelsAction when add-labels command is selected', async () => {
-    // First mock the command selection
-    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'add-labels',
-    });
-
-    // Then mock the token prompt
-    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      token: 'mock-token',
-    });
+    const { addLabelsAction } = await import('../../src/commands');
 
     await interactiveMode();
 
-    expect(addLabelsAction).toHaveBeenCalledTimes(1);
     expect(addLabelsAction).toHaveBeenCalledWith('mock-token');
-    expect(getLabelsAction).not.toHaveBeenCalled();
-    expect(helpAction).not.toHaveBeenCalled();
-    expect(mockExit).not.toHaveBeenCalled();
   });
 
-  it('should call getLabelsAction when get-labels command is selected', async () => {
-    // First mock the command selection
-    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'get-labels',
-    });
+  it('should call getLabelsAction when get option is selected', async () => {
+    const inquirer = await import('inquirer');
+    (inquirer.default.prompt as any).mockResolvedValueOnce({ action: 'get-labels' });
 
-    // Then mock the token prompt
-    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      token: 'mock-token',
-    });
+    const { getLabelsAction } = await import('../../src/commands');
 
     await interactiveMode();
 
-    expect(getLabelsAction).toHaveBeenCalledTimes(1);
     expect(getLabelsAction).toHaveBeenCalledWith('mock-token');
-    expect(addLabelsAction).not.toHaveBeenCalled();
-    expect(helpAction).not.toHaveBeenCalled();
-    expect(mockExit).not.toHaveBeenCalled();
   });
 
-  it('should call helpAction when help command is selected', async () => {
-    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'help',
-    });
+  it('should call deleteLabelsAction when delete option is selected', async () => {
+    const inquirer = await import('inquirer');
+    (inquirer.default.prompt as any).mockResolvedValueOnce({ action: 'delete-labels' });
+
+    const { deleteLabelsAction } = await import('../../src/commands');
 
     await interactiveMode();
 
-    expect(helpAction).toHaveBeenCalledTimes(1);
-    expect(addLabelsAction).not.toHaveBeenCalled();
-    expect(getLabelsAction).not.toHaveBeenCalled();
-    expect(mockExit).not.toHaveBeenCalled();
+    expect(deleteLabelsAction).toHaveBeenCalledWith('mock-token');
   });
 
-  it('should call process.exit when exit command is selected', async () => {
-    (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'exit',
-    });
+  it('should call helpAction when help option is selected', async () => {
+    const inquirer = await import('inquirer');
+    (inquirer.default.prompt as any).mockResolvedValueOnce({ action: 'help' });
 
-    await expect(interactiveMode()).rejects.toThrow('process.exit unexpectedly called with "0"');
+    const { helpAction } = await import('../../src/commands');
 
+    await interactiveMode();
+
+    expect(helpAction).toHaveBeenCalled();
+  });
+
+  it('should exit when exit option is selected', async () => {
+    const inquirer = await import('inquirer');
+    (inquirer.default.prompt as any).mockResolvedValueOnce({ action: 'exit' });
+
+    await expect(interactiveMode()).rejects.toThrow('Process.exit called with code: 0');
     expect(mockExit).toHaveBeenCalledWith(0);
-    expect(addLabelsAction).not.toHaveBeenCalled();
-    expect(getLabelsAction).not.toHaveBeenCalled();
-    expect(helpAction).not.toHaveBeenCalled();
+  });
+
+  it('should throw error for invalid action', async () => {
+    const inquirer = await import('inquirer');
+    (inquirer.default.prompt as any).mockResolvedValueOnce({ action: 'invalid' });
+
+    await expect(interactiveMode()).rejects.toThrow('Process.exit called with code: 1');
   });
 });

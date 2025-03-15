@@ -239,4 +239,83 @@ describe('GitHubManager', () => {
       await expect(manager.getLabelsFromRepo(repoFullName)).rejects.toThrow(PublicError);
     });
   });
+
+  describe('deleteLabels', () => {
+    const repoFullName = 'user/repo';
+    const mockLabels = [
+      { name: 'bug', color: 'ff0000', description: 'Bug report' },
+      { name: 'feature', color: '00ff00', description: 'New feature' },
+    ];
+
+    it('should delete selected labels from repository', async () => {
+      // Mock getLabelsFromRepo response
+      vi.spyOn(manager, 'getLabelsFromRepo').mockResolvedValue(mockLabels);
+
+      // Mock inquirer response for label selection
+      const inquirer = await import('inquirer');
+      (inquirer.default.prompt as any) = vi.fn().mockResolvedValue({
+        selectedLabels: ['bug', 'feature'],
+      });
+
+      // Mock GitHub API for deleting labels
+      nock(githubApiUrl)
+        .delete('/repos/user/repo/labels/bug')
+        .reply(204)
+        .delete('/repos/user/repo/labels/feature')
+        .reply(204);
+
+      await expect(manager.deleteLabels(repoFullName)).resolves.not.toThrow();
+
+      // Verify that the logger.success was called for each deletion
+      const logger = await import('../../src/utils/logger');
+      expect(logger.logger.success).toHaveBeenCalledWith(expect.stringContaining('bug'));
+      expect(logger.logger.success).toHaveBeenCalledWith(expect.stringContaining('feature'));
+    });
+
+    it('should handle non-existent label error', async () => {
+      // Mock getLabelsFromRepo response
+      vi.spyOn(manager, 'getLabelsFromRepo').mockResolvedValue(mockLabels);
+
+      // Mock inquirer response for label selection
+      const inquirer = await import('inquirer');
+      (inquirer.default.prompt as any) = vi.fn().mockResolvedValue({
+        selectedLabels: ['non-existent'],
+      });
+
+      // Mock GitHub API for deleting labels with 404 error
+      nock(githubApiUrl)
+        .delete('/repos/user/repo/labels/non-existent')
+        .reply(404, { message: 'Not Found' });
+
+      await expect(manager.deleteLabels(repoFullName)).resolves.not.toThrow();
+
+      // Verify that the logger.warning was called
+      const logger = await import('../../src/utils/logger');
+      expect(logger.logger.warning).toHaveBeenCalledWith(expect.stringContaining('not found'));
+    });
+
+    it('should throw error when no labels are selected', async () => {
+      // Mock getLabelsFromRepo response
+      vi.spyOn(manager, 'getLabelsFromRepo').mockResolvedValue(mockLabels);
+
+      // Mock inquirer response with empty selection
+      const inquirer = await import('inquirer');
+      (inquirer.default.prompt as any) = vi.fn().mockResolvedValue({
+        selectedLabels: [],
+      });
+
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(PublicError);
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow('No labels were selected');
+    });
+
+    it('should throw error when repository has no labels', async () => {
+      // Mock getLabelsFromRepo response with empty array
+      vi.spyOn(manager, 'getLabelsFromRepo').mockResolvedValue([]);
+
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(PublicError);
+      await expect(manager.deleteLabels(repoFullName)).rejects.toThrow(
+        'No labels found in repository'
+      );
+    });
+  });
 });

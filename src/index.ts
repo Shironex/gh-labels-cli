@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { addLabelsAction, getLabelsAction, helpAction, interactiveMode } from '@/commands';
+import {
+  addLabelsAction,
+  getLabelsAction,
+  helpAction,
+  interactiveMode,
+  deleteLabelsAction,
+} from '@/commands';
 
 const program = new Command();
 
@@ -27,14 +33,24 @@ program
     getLabelsAction(options.token);
   });
 
-program.command('help').description('Display all available commands').action(helpAction);
-
-// If no arguments provided, run interactive mode
-if (!process.argv.slice(2).length) {
-  interactiveMode().catch(error => {
-    console.error(error);
-    process.exit(1);
+program
+  .command('delete-labels')
+  .description('Delete labels from a GitHub repository')
+  .action(() => {
+    const options = program.opts();
+    deleteLabelsAction(options.token);
   });
-} else {
-  program.parse(process.argv);
-}
+
+program
+  .command('help')
+  .description('Display help information')
+  .action(() => {
+    helpAction();
+  });
+
+// Default command (interactive mode)
+program.action(() => {
+  interactiveMode();
+});
+
+program.parse();
