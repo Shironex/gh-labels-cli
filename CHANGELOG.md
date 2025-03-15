@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/Shironex/gh-labels-cli/compare/v1.2.0...v1.2.1) (2025-03-15)
+
+
+### Bug Fixes
+
+* standardize formatting in codeql.yml ([7a13a32](https://github.com/Shironex/gh-labels-cli/commit/7a13a328d9ac1c0a57f3601d9aba4e32903cb32e))
+
 # [1.2.0](https://github.com/Shironex/gh-labels-cli/compare/v1.1.0...v1.2.0) (2025-03-15)
 
 
