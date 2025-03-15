@@ -160,7 +160,7 @@ Here are planned improvements for future development:
 - [ ] Add color support for terminal output using chalk or colors
 - [ ] Add progress indicators for long-running operations using ora
 - [ ] Add command aliases for easier typing (e.g., 'add' for 'add-labels')
-- [ ] Add verbose mode for debugging
+- [x] Add verbose mode for debugging
 
 ### Feature Enhancements
 
@@ -195,7 +195,7 @@ Here are planned improvements for future development:
 - [ ] Add JSDoc comments to all functions
 - [ ] Create a detailed API documentation
 - [ ] Add examples for common use cases
-- [ ] Create a contributing guide
+- [x] Create a contributing guide
 
 ## License
 

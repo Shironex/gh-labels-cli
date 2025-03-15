@@ -16,6 +16,7 @@ class GitHubManager {
 
   constructor(token?: string) {
     const githubToken = token || process.env.GITHUB_TOKEN;
+    logger.debug('Initializing GitHubManager');
 
     if (!githubToken) {
       logger.error('GitHub token is required.');
@@ -23,6 +24,7 @@ class GitHubManager {
     }
 
     this._octokit = new Octokit({ auth: githubToken });
+    logger.debug('Octokit instance created successfully');
   }
 
   public async ensureToken(): Promise<void> {
@@ -36,17 +38,23 @@ class GitHubManager {
   }
 
   async getLabelsFromJSON(): Promise<GithubLabel[]> {
+    logger.debug('Loading labels from labels.json');
     try {
       return labelsData;
     } catch (error) {
+      logger.debug(
+        `Failed to load labels.json: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
       throw new PublicError('Failed to load labels from labels.json.');
     }
   }
 
   async getLabelsFromRepo(repoFullName: string): Promise<GithubLabel[]> {
+    logger.debug(`Fetching labels from repository: ${repoFullName}`);
     try {
       const spinner = ora(`Fetching labels from repository: ${repoFullName} ...`).start();
       const [owner, repo] = repoFullName.split('/');
+      logger.debug(`Owner: ${owner}, Repo: ${repo}`);
 
       const { data: labels } = await this.octokit.issues.listLabelsForRepo({
         owner,
@@ -54,6 +62,7 @@ class GitHubManager {
         per_page: 100,
       });
 
+      logger.debug(`Found ${labels.length} labels in repository`);
       spinner.succeed();
       logger.success('Labels fetched successfully!');
 
@@ -64,6 +73,9 @@ class GitHubManager {
         description: label.description || '',
       }));
     } catch (error) {
+      logger.debug(
+        `Error fetching labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
       throw new PublicError(
         `Failed to fetch labels: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -93,13 +105,16 @@ class GitHubManager {
   }
 
   async selectRepository(): Promise<string> {
+    logger.debug('Fetching repositories for authenticated user');
     const spinner = ora(`Fetching repositories ...`).start();
     const { data: repos } = await this.octokit.repos.listForAuthenticatedUser();
 
+    logger.debug(`Found ${repos.length} repositories`);
     spinner.succeed();
     logger.success('Done!');
 
     if (repos.length === 0) {
+      logger.debug('No repositories found for the authenticated user');
       throw new PublicError('No repositories found.');
     }
 
@@ -115,18 +130,22 @@ class GitHubManager {
       },
     ]);
 
+    logger.debug(`Selected repository: ${selectedRepo}`);
     return selectedRepo;
   }
 
   async addLabels(repoFullName: string): Promise<void> {
     try {
       logger.info(`Adding labels to repository: ${repoFullName}\n`);
+      logger.debug(`Starting label addition process for ${repoFullName}`);
 
       const selectedLabels = await this.selectLabels();
+      logger.debug(`Selected ${selectedLabels.length} labels to add`);
       const [owner, repo] = repoFullName.split('/');
 
       for (const label of selectedLabels) {
         try {
+          logger.debug(`Attempting to create label: ${label.name}`);
           await this.octokit.issues.createLabel({
             owner,
             repo,
@@ -139,12 +158,17 @@ class GitHubManager {
         } catch (error: any) {
           if (error instanceof RequestError) {
             if (error.status === 422) {
+              logger.debug(`Label "${label.name}" already exists in repository`);
               logger.warning(`Label "${label.name}" already exists. Skipping...`);
               continue;
             }
 
+            logger.debug(`GitHub API error (${error.status}): ${error.message}`);
             logger.error(`GitHub API error (${error.status}): ${error.message}`);
           } else {
+            logger.debug(
+              `Unexpected error while adding label "${label.name}": ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
             logger.error(
               `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
             );
@@ -152,6 +176,9 @@ class GitHubManager {
         }
       }
     } catch (error: unknown) {
+      logger.debug(
+        `Failed to add labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
       throw new PublicError(
         `Failed to add labels: ${error instanceof Error ? error.message : 'Unknown error'}`
       );

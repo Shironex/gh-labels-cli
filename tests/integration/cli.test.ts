@@ -10,6 +10,8 @@ vi.mock('../../src/utils/logger', () => ({
     error: vi.fn(),
     warning: vi.fn(),
     info: vi.fn(),
+    debug: vi.fn(),
+    isVerbose: vi.fn().mockReturnValue(false),
   },
 }));
 
