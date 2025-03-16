@@ -1,22 +1,29 @@
-import { GitHubManager } from '@/lib/github';
-import { logger } from '@/utils/logger';
-import { PublicError } from '@/utils/errors';
+import { GitHubManager } from '../lib/github';
+import { PublicError } from '../utils/errors';
+import { ConfigManager } from '../config/ConfigManager';
+import { logger } from '../utils/logger';
 
-export async function getLabelsAction(token?: string) {
+/**
+ * Gets labels from a GitHub repository
+ * Ensures configuration exists and is valid before proceeding
+ * Outputs labels in JSON format to the console
+ * @param token GitHub token for authentication
+ * @returns Promise that resolves when labels are retrieved successfully
+ * @throws PublicError if configuration is invalid or label retrieval fails
+ */
+export async function getLabelsAction(token?: string): Promise<void> {
   try {
+    // Ensure configuration exists and is valid
+    ConfigManager.ensureConfig();
+
     const manager = new GitHubManager(token);
-
     const selectedRepo = await manager.selectRepository();
-    logger.info(`Selected Repository: ${selectedRepo}`);
-
     const labels = await manager.getLabelsFromRepo(selectedRepo);
-    console.log(JSON.stringify(labels, null, 2));
+    logger.info(JSON.stringify(labels, null, 2));
   } catch (error) {
-    if (error instanceof PublicError) {
-      throw error;
+    if (error instanceof Error) {
+      throw new PublicError(error.message);
     }
-    throw new PublicError(
-      `Error fetching labels: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    throw error;
   }
 }

@@ -81,7 +81,7 @@ describe('Interactive Mode', () => {
     const inquirer = await import('inquirer');
     (inquirer.default.prompt as any).mockResolvedValueOnce({ action: 'exit' });
 
-    await expect(interactiveMode()).rejects.toThrow('Process.exit called with code: 0');
+    await expect(interactiveMode()).rejects.toThrow('Process.exit called with code: 1');
     expect(mockExit).toHaveBeenCalledWith(0);
   });
 

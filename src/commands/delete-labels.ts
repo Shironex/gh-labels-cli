@@ -1,21 +1,27 @@
-import { GitHubManager } from '@/lib/github';
-import { logger } from '@/utils/logger';
-import { PublicError } from '@/utils/errors';
+import { GitHubManager } from '../lib/github';
+import { PublicError } from '../utils/errors';
+import { ConfigManager } from '../config/ConfigManager';
 
-export async function deleteLabelsAction(token?: string) {
+/**
+ * Deletes labels from a GitHub repository
+ * Ensures configuration exists and is valid before proceeding
+ * Prompts user to select which labels to delete
+ * @param token GitHub token for authentication
+ * @returns Promise that resolves when labels are deleted successfully
+ * @throws PublicError if configuration is invalid or label deletion fails
+ */
+export async function deleteLabelsAction(token?: string): Promise<void> {
   try {
+    // Ensure configuration exists and is valid
+    ConfigManager.ensureConfig();
+
     const manager = new GitHubManager(token);
-
     const selectedRepo = await manager.selectRepository();
-    logger.info(`Selected Repository: ${selectedRepo}`);
-
     await manager.deleteLabels(selectedRepo);
   } catch (error) {
-    if (error instanceof PublicError) {
-      throw error;
+    if (error instanceof Error) {
+      throw new PublicError(error.message);
     }
-    throw new PublicError(
-      `Error deleting labels: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    throw error;
   }
 }

@@ -4,6 +4,7 @@ import { getLabelsAction } from '../../src/commands/get-labels';
 import { helpAction } from '../../src/commands/help';
 import { GitHubManager } from '../../src/lib/github';
 import { PublicError } from '../../src/utils/errors';
+import { logger } from '../../src/utils/logger';
 
 // Mock dependencies
 vi.mock('../../src/lib/github', () => ({
@@ -67,7 +68,7 @@ describe('Commands', () => {
         .value;
       expect(managerInstance.selectRepository).toHaveBeenCalledTimes(1);
       expect(managerInstance.getLabelsFromRepo).toHaveBeenCalledWith('user/repo');
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.any(String));
+      expect(logger.info).toHaveBeenCalledWith(expect.any(String));
     });
 
     it('should throw PublicError when an error occurs', async () => {
@@ -84,11 +85,11 @@ describe('Commands', () => {
     it('should display available commands', () => {
       helpAction();
 
-      expect(mockConsoleLog).toHaveBeenCalledTimes(5);
-      expect(mockConsoleLog).toHaveBeenCalledWith('Available commands:');
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('add-labels'));
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('get-labels'));
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('help'));
+      expect(logger.info).toHaveBeenCalledWith('Available commands:');
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('add-labels'));
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('get-labels'));
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('delete-labels'));
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('help'));
     });
   });
 });

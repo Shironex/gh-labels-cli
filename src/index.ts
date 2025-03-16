@@ -7,6 +7,7 @@ import {
   helpAction,
   interactiveMode,
   deleteLabelsAction,
+  configCommand,
 } from '@/commands';
 
 const program = new Command();
@@ -47,6 +48,9 @@ program
   .action(() => {
     helpAction();
   });
+
+// Add configuration management command
+program.addCommand(configCommand);
 
 // Default command (interactive mode)
 program.action(() => {

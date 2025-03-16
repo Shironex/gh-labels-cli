@@ -174,9 +174,8 @@ Here are planned improvements for future development:
 - [ ] Implement label customization before adding to repository
 - [ ] Add label export/import functionality between repositories
 - [x] Add label deletion functionality
-- [ ] Add configuration file support to save user preferences (Priority for tomorrow)
+- [ ] Add configuration file support to save user preferences
   - Create a config manager to handle reading/writing configuration
-  - Store GitHub token securely (optional)
   - Save favorite/recent repositories
   - Save custom label templates
   - Add commands to manage configuration (set, get, reset)

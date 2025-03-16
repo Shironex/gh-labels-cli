@@ -1,7 +1,14 @@
-export function helpAction() {
-  console.log('Available commands:');
-  console.log('  add-labels  - Add labels to a GitHub repository');
-  console.log('  get-labels  - Get all labels from a GitHub repository in JSON format');
-  console.log('  help        - Display all available commands');
-  console.log('\nFor more details, use: gh-labels [command] --help');
+import { logger } from '../utils/logger';
+
+/**
+ * Displays help information about available commands
+ * Lists all commands with their descriptions
+ * @returns void
+ */
+export function helpAction(): void {
+  logger.info('Available commands:');
+  logger.info('  add-labels  - Add labels to a repository');
+  logger.info('  get-labels  - Get labels from a repository in JSON format');
+  logger.info('  delete-labels - Delete labels from a repository');
+  logger.info('  help       - Display this help information');
 }

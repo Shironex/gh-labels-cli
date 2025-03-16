@@ -11,6 +11,7 @@
     "gh-labels": "src/index.js"
   },
   "scripts": {
+    "prebuild": "tsx scripts/update-version.ts",
     "build": "tsup",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
@@ -18,7 +19,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "prepare": "husky",
+    "prepare": "husky && pnpm prebuild",
     "commitlint": "commitlint --edit",
     "commit": "cz",
     "release": "semantic-release",
@@ -38,7 +39,8 @@
     "commander": "^13.1.0",
     "dotenv": "^16.4.7",
     "inquirer": "^12.4.3",
-    "ora": "^8.2.0"
+    "ora": "^8.2.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",

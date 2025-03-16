@@ -1,33 +1,37 @@
 import inquirer from 'inquirer';
-import { addLabelsAction, getLabelsAction, deleteLabelsAction, helpAction } from './index';
+import { addLabelsAction, getLabelsAction, deleteLabelsAction, helpAction } from '.';
 import { config } from 'dotenv';
+import { handleConfigInteractive } from './config';
+import { ConfigManager } from '../config/ConfigManager';
+import { PublicError } from '../utils/errors';
+import { logger } from '../utils/logger';
 
 config();
 
 /**
- * Get GitHub token from environment or prompt user
- * @returns GitHub token
+ * Gets GitHub token from environment or prompts user for input
+ * @returns Promise that resolves with the GitHub token
+ * @throws PublicError if token is not available or invalid
  */
-async function getGitHubToken(): Promise<string> {
-  let gh_token = process.env.GITHUB_TOKEN;
-
-  if (!gh_token) {
-    const { token } = await inquirer.prompt([
+async function getToken(): Promise<string> {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) {
+    const { token: inputToken } = await inquirer.prompt([
       {
         type: 'password',
         name: 'token',
-        message: 'Please enter your GitHub Personal Access Token:',
-        validate: input => {
-          if (!input) return 'Token is required';
+        message: 'Enter your GitHub token:',
+        validate: (input: string) => {
+          if (!input) {
+            return 'Token is required';
+          }
           return true;
         },
       },
     ]);
-
-    gh_token = token as string;
+    return inputToken;
   }
-
-  return gh_token;
+  return token;
 }
 
 /**
@@ -35,43 +39,64 @@ async function getGitHubToken(): Promise<string> {
  * Displays a menu with available commands and executes the selected one
  */
 export async function interactiveMode(): Promise<void> {
-  const { action } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'action',
-      message: 'What would you like to do?',
-      choices: [
-        { name: 'Add labels to a repository', value: 'add-labels' },
-        { name: 'Get labels from a repository in JSON format', value: 'get-labels' },
-        { name: 'Delete labels from a repository', value: 'delete-labels' },
-        { name: 'Display help information', value: 'help' },
-        { name: 'Exit', value: 'exit' },
-      ],
-    },
-  ]);
+  try {
+    // Ensure configuration exists and is valid
+    ConfigManager.ensureConfig();
 
-  if (action === 'exit') {
-    process.exit(0);
-  }
+    const token = await getToken();
 
-  if (action === 'help') {
-    helpAction();
-    return;
-  }
+    const { action } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'What would you like to do?',
+        choices: [
+          { name: 'Add labels to a repository', value: 'add-labels' },
+          { name: 'Get labels from a repository', value: 'get-labels' },
+          { name: 'Delete labels from a repository', value: 'delete-labels' },
+          { name: 'Manage Configuration', value: 'config' },
+          { name: 'Show help', value: 'help' },
+          { name: 'Exit', value: 'exit' },
+        ],
+      },
+    ]);
 
-  const token = await getGitHubToken();
+    if (action === 'exit') {
+      process.exit(0);
+    }
 
-  switch (action) {
-    case 'add-labels':
-      await addLabelsAction(token);
-      break;
-    case 'get-labels':
-      await getLabelsAction(token);
-      break;
-    case 'delete-labels':
-      await deleteLabelsAction(token);
-      break;
-    default:
-      process.exit(1);
+    if (action === 'help') {
+      helpAction();
+      return;
+    }
+
+    if (action === 'config') {
+      await handleConfigInteractive();
+      // Return to main menu after config management
+      await interactiveMode();
+      return;
+    }
+
+    switch (action) {
+      case 'add-labels':
+        await addLabelsAction(token);
+        break;
+      case 'get-labels':
+        await getLabelsAction(token);
+        break;
+      case 'delete-labels':
+        await deleteLabelsAction(token);
+        break;
+      default:
+        logger.error(`Unknown action: ${action}`);
+        process.exit(1);
+    }
+  } catch (error) {
+    if (error instanceof PublicError) {
+      logger.error(error.message);
+    } else {
+      logger.error('An unexpected error occurred');
+    }
+    process.exit(1);
   }
 }

@@ -1,5 +1,6 @@
-export { addLabelsAction } from './add-labels';
-export { getLabelsAction } from './get-labels';
-export { helpAction } from './help';
-export { interactiveMode } from './interactive';
-export { deleteLabelsAction } from './delete-labels';
+export * from './add-labels';
+export * from './get-labels';
+export * from './delete-labels';
+export * from './help';
+export * from './interactive';
+export * from './config';
