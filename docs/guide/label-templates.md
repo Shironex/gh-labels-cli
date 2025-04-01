@@ -18,6 +18,16 @@ All label templates are stored in the `src/labels/` directory of the project:
 - Repository-specific templates are automatically created when you use the `get-labels` command
 - Custom templates that you create manually
 
+## Complete Label Management
+
+GitHub Labels CLI provides a complete set of tools for managing labels:
+
+1. **Adding labels** - Apply labels from templates to repositories
+2. **Exporting labels** - Save existing repository labels as templates
+3. **Removing labels** - Clean up unwanted or outdated labels from repositories
+
+This full lifecycle management allows you to keep your repositories organized and consistent.
+
 ## Using Templates
 
 When you run the `add-labels` command, you'll be prompted to select a template if multiple templates are available. The selected template's labels will then be presented for you to choose from.

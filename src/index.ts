@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { addLabelsAction, getLabelsAction, helpAction, interactiveMode } from '@/commands';
+import {
+  addLabelsAction,
+  getLabelsAction,
+  helpAction,
+  interactiveMode,
+  removeLabelAction,
+} from '@/commands';
 
 const program = new Command();
 
@@ -25,6 +31,14 @@ program
   .action(() => {
     const options = program.opts();
     getLabelsAction(options.token);
+  });
+
+program
+  .command('remove-labels')
+  .description('Remove labels from a GitHub repository')
+  .action(() => {
+    const options = program.opts();
+    removeLabelAction(options.token);
   });
 
 program.command('help').description('Display all available commands').action(helpAction);

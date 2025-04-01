@@ -10,6 +10,7 @@ This tool allows you to:
 
 - Add labels from template collections to GitHub repositories
 - Get existing labels from a repository in JSON format
+- Remove unwanted labels from repositories
 - Create and use custom label templates
 - Interactively select a repository to manage
 
@@ -20,6 +21,7 @@ Managing labels through GitHub's web interface can be time-consuming, especially
 - Setting up labels for new repositories
 - Wanting to apply the same set of labels across multiple projects
 - Needing to quickly export labels from a repository
+- Cleaning up unwanted or outdated labels from repositories
 
 GitHub Labels CLI automates these tasks, saving you time and ensuring label consistency.
 
@@ -27,6 +29,7 @@ GitHub Labels CLI automates these tasks, saving you time and ensuring label cons
 
 - **Template-based labels**: Choose from default templates or create your own
 - **Label export**: Export labels from any repository to use as templates
+- **Label removal**: Clean up repositories by removing unwanted labels
 - **Interactive mode**: Guided process for managing labels
 - **Custom templates**: Create and share your own label collections
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { addLabelsAction } from '../../src/commands/add-labels';
 import { getLabelsAction } from '../../src/commands/get-labels';
+import { removeLabelAction } from '../../src/commands/remove-labels';
 import { helpAction } from '../../src/commands/help';
 import { GitHubManager } from '../../src/lib/github';
 import { PublicError } from '../../src/utils/errors';
@@ -179,14 +180,67 @@ describe('Commands', () => {
     });
   });
 
+  describe('removeLabelAction', () => {
+    it('should select repository and remove labels', async () => {
+      // Make sure GitHubManager mock includes removeLabels method
+      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
+        selectRepository: vi.fn().mockResolvedValue('user/repo'),
+        removeLabels: vi.fn().mockResolvedValue(undefined),
+        getLabelsFromRepo: vi
+          .fn()
+          .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]),
+      }));
+
+      // Mock ora
+      vi.mock('ora', () => ({
+        default: vi.fn(() => ({
+          start: vi.fn().mockReturnThis(),
+          text: '',
+          succeed: vi.fn(),
+          fail: vi.fn(),
+        })),
+      }));
+
+      // Perform the action
+      await expect(removeLabelAction()).resolves.not.toThrow();
+
+      // Verify the GitHub API calls
+      const managerInstance = (GitHubManager as unknown as ReturnType<typeof vi.fn>).mock.results[0]
+        .value;
+      expect(managerInstance.selectRepository).toHaveBeenCalledTimes(1);
+      expect(managerInstance.removeLabels).toHaveBeenCalledWith('user/repo');
+    });
+
+    it('should throw PublicError when an error occurs', async () => {
+      const mockError = new Error('Test error');
+      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
+        selectRepository: vi.fn().mockRejectedValue(mockError),
+      }));
+
+      // Mock ora for this test
+      vi.mock('ora', () => ({
+        default: vi.fn(() => ({
+          start: vi.fn().mockReturnThis(),
+          text: '',
+          succeed: vi.fn(),
+          fail: vi.fn(),
+        })),
+      }));
+
+      await expect(removeLabelAction()).rejects.toThrow(PublicError);
+    });
+  });
+
   describe('helpAction', () => {
     it('should display available commands', () => {
       helpAction();
 
-      expect(mockConsoleLog).toHaveBeenCalledTimes(5);
+      // Now expecting 6 calls instead of 5 due to the new remove-labels command
+      expect(mockConsoleLog).toHaveBeenCalledTimes(6);
       expect(mockConsoleLog).toHaveBeenCalledWith('Available commands:');
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('add-labels'));
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('get-labels'));
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('remove-labels'));
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('help'));
     });
   });

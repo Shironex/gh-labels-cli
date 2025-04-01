@@ -20,6 +20,7 @@ The interactive mode follows this general workflow:
 
    - Add labels to a repository
    - Get labels from a repository in JSON format
+   - Remove labels from a repository
    - Display available commands
    - Exit
 
@@ -54,6 +55,26 @@ When selecting "Get labels from a repository in JSON format", the interactive mo
 
 This makes it easy to export and backup your repository labels or use them as templates for other repositories. Any labels saved with this command will automatically become available as templates when adding labels to repositories.
 
+## Removing Labels Interactively
+
+When selecting "Remove labels from a repository", the interactive mode will:
+
+1. Show a list of your GitHub repositories for selection
+2. Fetch all existing labels from the selected repository
+3. Display a checklist of labels for you to select which ones to remove:
+   ```
+   ? Select labels to remove:
+     ◯ bug - Something isn't working
+     ◯ documentation - Improvements or additions to documentation
+     ◉ duplicate - This issue or pull request already exists
+     ◉ invalid - This doesn't seem right
+     ◯ enhancement - New feature or request
+   ```
+4. Remove the selected labels from the repository
+5. Show the results of the operation with success or warning messages
+
+This is useful for cleaning up repositories by removing outdated, duplicate, or unwanted labels.
+
 ## Benefits of Interactive Mode
 
 - No need to remember command syntax
@@ -73,6 +94,7 @@ $ pnpm dev
 ? Select a command:
   Add labels to a repository
   Get labels from a repository in JSON format
+  Remove labels from a repository
   Display available commands
   Exit
 

@@ -4,12 +4,13 @@ GitHub Labels CLI offers a set of simple commands to help you manage labels in y
 
 ## Command Overview
 
-| Command               | Description                                     |
-| --------------------- | ----------------------------------------------- |
-| `pnpm dev`            | Run in interactive mode (default)               |
-| `pnpm dev add-labels` | Add predefined labels to a repository           |
-| `pnpm dev get-labels` | Get all labels from a repository in JSON format |
-| `pnpm dev help`       | Display help information                        |
+| Command                  | Description                                     |
+| ------------------------ | ----------------------------------------------- |
+| `pnpm dev`               | Run in interactive mode (default)               |
+| `pnpm dev add-labels`    | Add predefined labels to a repository           |
+| `pnpm dev get-labels`    | Get all labels from a repository in JSON format |
+| `pnpm dev remove-labels` | Remove labels from a repository                 |
+| `pnpm dev help`          | Display help information                        |
 
 ## Interactive Mode
 
@@ -61,6 +62,24 @@ This command will:
 
 The output file will contain all labels with their names, colors, and descriptions in JSON format. These saved labels can then be used as templates when adding labels to other repositories.
 
+## Removing Labels
+
+To remove labels from a repository:
+
+```bash
+pnpm dev remove-labels
+```
+
+This command will:
+
+1. Prompt for your GitHub token (if not already provided)
+2. Display a list of your repositories for selection
+3. Fetch all labels from the selected repository
+4. Display a checklist of labels for you to select which ones to remove
+5. Remove the selected labels from the repository
+
+This is useful for cleaning up repositories by removing outdated, duplicate, or unwanted labels.
+
 ## Creating Custom Label Templates
 
 You can create your own label templates to use with the CLI:
@@ -94,27 +113,3 @@ pnpm dev help
 ```
 
 This shows a list of all available commands and their descriptions.
-
-## Examples
-
-### Adding Labels to a Repository
-
-```bash
-# Interactive mode
-pnpm dev
-# Then select "Add labels to a repository"
-
-# Or directly
-pnpm dev add-labels
-```
-
-### Getting Labels from a Repository
-
-```bash
-# Interactive mode
-pnpm dev
-# Then select "Get labels from a repository in JSON format"
-
-# Or directly
-pnpm dev get-labels
-```

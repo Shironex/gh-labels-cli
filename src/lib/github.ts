@@ -164,6 +164,34 @@ class GitHubManager {
     return selectedLabels;
   }
 
+  async selectLabelsToRemove(repoFullName: string): Promise<string[]> {
+    try {
+      const labels = await this.getLabelsFromRepo(repoFullName);
+
+      const { selectedLabels } = await inquirer.prompt([
+        {
+          type: 'checkbox',
+          name: 'selectedLabels',
+          message: 'Select labels to remove:',
+          choices: labels.map(label => ({
+            name: `${label.name} - ${label.description}`,
+            value: label.name,
+          })),
+        },
+      ]);
+
+      if (selectedLabels.length === 0) {
+        throw new PublicError('No labels were selected for removal.');
+      }
+
+      return selectedLabels;
+    } catch (error) {
+      throw new PublicError(
+        `Failed to select labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
   async selectRepository(): Promise<string> {
     const spinner = ora(`Fetching repositories ...`).start();
     const { data: repos } = await this.octokit.repos.listForAuthenticatedUser();
@@ -226,6 +254,44 @@ class GitHubManager {
     } catch (error: unknown) {
       throw new PublicError(
         `Failed to add labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  async removeLabels(repoFullName: string): Promise<void> {
+    try {
+      logger.info(`Removing labels from repository: ${repoFullName}\n`);
+
+      const selectedLabels = await this.selectLabelsToRemove(repoFullName);
+      const [owner, repo] = repoFullName.split('/');
+
+      for (const labelName of selectedLabels) {
+        try {
+          await this.octokit.issues.deleteLabel({
+            owner,
+            repo,
+            name: labelName,
+          });
+
+          logger.success(`Label "${labelName}" removed successfully!`);
+        } catch (error: any) {
+          if (error instanceof RequestError) {
+            if (error.status === 404) {
+              logger.warning(`Label "${labelName}" not found. Skipping...`);
+              continue;
+            }
+
+            logger.error(`GitHub API error (${error.status}): ${error.message}`);
+          } else {
+            logger.error(
+              `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+          }
+        }
+      }
+    } catch (error: unknown) {
+      throw new PublicError(
+        `Failed to remove labels: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }

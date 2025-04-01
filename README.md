@@ -7,6 +7,7 @@ Command-line tool for managing labels in GitHub repositories.
 - Fetch user's repositories list
 - Select a repository to manage labels
 - Choose labels to add from predefined templates
+- Remove selected labels from repositories
 - Add selected labels to the repository
 - Get all labels from a repository and save them as templates
 - Use previously saved labels as templates for new repositories
@@ -47,6 +48,9 @@ pnpm dev add-labels
 
 # Get all labels from a repository in JSON format
 pnpm dev get-labels
+
+# Remove labels from a repository
+pnpm dev remove-labels
 
 # Display help information
 pnpm dev help

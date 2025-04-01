@@ -32,13 +32,6 @@ pnpm install
 pnpm dev
 ```
 
-For specific commands, you can add them after the dev command:
-
-```bash
-pnpm dev add-labels
-pnpm dev get-labels
-```
-
 ## GitHub Token Setup
 
 GitHub Labels CLI requires a Personal Access Token to access your repositories. You can set it up in two ways:

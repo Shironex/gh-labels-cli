@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import { addLabelsAction, getLabelsAction, helpAction } from './index';
+import { addLabelsAction, getLabelsAction, helpAction, removeLabelAction } from './index';
 import { config } from 'dotenv';
 import { logger } from '@/utils/logger';
 
@@ -44,6 +44,7 @@ export async function interactiveMode(): Promise<void> {
       choices: [
         { name: 'Add labels to a repository', value: 'add-labels' },
         { name: 'Get labels from a repository in JSON format', value: 'get-labels' },
+        { name: 'Remove labels from a repository', value: 'remove-labels' },
         { name: 'Display available commands', value: 'help' },
         { name: 'Exit', value: 'exit' },
       ],
@@ -62,6 +63,11 @@ export async function interactiveMode(): Promise<void> {
     case 'get-labels':
       const getLabelsToken = await getGitHubToken();
       await getLabelsAction(getLabelsToken);
+      break;
+
+    case 'remove-labels':
+      const removeLabelsToken = await getGitHubToken();
+      await removeLabelAction(removeLabelsToken);
       break;
 
     case 'help':
