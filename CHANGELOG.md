@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/Shironex/gh-labels-cli/compare/v1.2.1...v1.3.0) (2025-04-01)
+
+
+### Features
+
+* **labels:** add ability to remove labels from repositories ([07e76aa](https://github.com/Shironex/gh-labels-cli/commit/07e76aad21f628390f5bba94e38ae9e0fc066809))
+
 ## [1.2.1](https://github.com/Shironex/gh-labels-cli/compare/v1.2.0...v1.2.1) (2025-03-15)
 
 
