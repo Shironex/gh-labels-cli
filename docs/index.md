@@ -4,7 +4,7 @@ layout: home
 hero:
   name: 'GitHub Labels CLI'
   text: 'Manage GitHub repository labels'
-  tagline: Simple command-line tool for adding, exporting, and removing GitHub labels
+  tagline: Simple command-line tool for adding, exporting, removing, and suggesting GitHub labels
   actions:
     - theme: brand
       text: Get Started
@@ -26,6 +26,9 @@ features:
   - icon: 🗑️
     title: Label Removal
     details: Clean up repositories by removing unwanted or outdated labels
+  - icon: 🤖
+    title: AI Label Suggestions
+    details: Analyze pull requests and get intelligent label recommendations based on content
   - icon: 💬
     title: Interactive Mode
     details: User-friendly interactive mode that guides you through all operations step by step

@@ -52,119 +52,27 @@ pnpm dev get-labels
 # Remove labels from a repository
 pnpm dev remove-labels
 
+# Suggest labels for a pull request
+pnpm dev suggest-labels
+
 # Display help information
 pnpm dev help
 ```
 
-### GitHub Token
+## AI-Powered Label Suggestions
 
-The tool requires a GitHub token with repository management permissions. You can set the token in two ways:
+The `suggest-labels` feature uses artificial intelligence to analyze pull requests and automatically suggest appropriate labels. This feature analyzes:
 
-1. As an environment variable `GITHUB_TOKEN`:
-   - Create a `.env` file in the project root directory:
+- Pull request title and description
+- Files that have been changed
+- Existing labels in the repository
 
-```
-GITHUB_TOKEN=your_github_token
-```
+To use this feature:
 
-2. When running in interactive mode, if no token is provided via environment variable, you will be prompted to enter your GitHub token securely:
+1. Set your OpenAI API key in the `OPENAI_API_KEY` environment variable.
+2. Run the command `pnpm dev suggest-labels` or select "Suggest labels for a pull request" in interactive mode.
+3. Select a repository and then choose a pull request to analyze.
+4. The AI will analyze the changes and suggest appropriate labels with explanations.
+5. You can review and apply the suggested labels to the selected pull request.
 
-```bash
-# Run in interactive mode and you'll be prompted for token when needed
-pnpm dev
-# You'll be prompted: 'Please enter your GitHub Personal Access Token:'
-```
-
-### Label Templates
-
-When adding labels to a repository, you can choose from available templates:
-
-1. **Default template** - The default set of labels included with the tool
-2. **Custom templates** - Labels you've previously exported from other repositories using the `get-labels` command
-
-When running the `get-labels` command, the exported labels are saved to the `src/labels` directory with the repository name as the filename (e.g., `owner-repo.json`). These saved labels automatically become available as templates when adding labels to repositories.
-
-### Contributing Your Own Labels
-
-If you want to contribute your own label templates to use with the tool:
-
-1. Create a JSON file with your labels in the `src/labels/` directory
-2. Follow the format below:
-
-```json
-[
-  {
-    "name": "bug",
-    "color": "d73a4a",
-    "description": "Something isn't working"
-  },
-  {
-    "name": "enhancement",
-    "color": "a2eeef",
-    "description": "New feature or request"
-  }
-]
-```
-
-Your custom labels will automatically appear as a template option when running the `add-labels` command.
-
-## Development
-
-### Requirements
-
-- Node.js 20 or newer
-- pnpm 9.12.3 or newer
-
-### Scripts
-
-- `pnpm build` - Builds the project
-- `pnpm start` - Runs the built project
-- `pnpm dev` - Runs the project in development mode
-- `pnpm format` - Format code with Prettier
-- `pnpm format:check` - Check code formatting
-- `pnpm lint` - Checks the code for errors
-- `pnpm lint:fix` - Fix linting errors automatically
-- `pnpm commit` - Use commitizen for conventional commits
-- `pnpm release` - Run semantic-release
-- `pnpm release:dry` - Run semantic-release in dry-run mode
-- `pnpm test` - Runs tests
-- `pnpm test:watch` - Run tests in watch mode
-- `pnpm test:ui` - Run tests with UI
-- `pnpm test:coverage` - Runs tests with code coverage
-
-### Tests
-
-The project includes unit and integration tests that can be run using the `pnpm test` command. Tests are written using the Vitest framework.
-
-Test structure:
-
-- `tests/unit/` - Unit tests for individual components
-- `tests/integration/` - Integration tests for the entire CLI
-
-Code coverage can be checked using the `pnpm test:coverage` command.
-
-### Project Structure
-
-```
-src/
-├── commands/            # CLI commands implementation
-│   ├── add-labels.ts    # Add labels command
-│   ├── get-labels.ts    # Get labels command
-│   ├── help.ts          # Help command
-│   ├── index.ts         # Commands exports
-│   └── interactive.ts   # Interactive mode implementation
-├── labels/              # Label templates and exported labels
-│   └── default.json     # Default label template
-├── lib/                 # Core functionality
-│   └── github.ts        # GitHub API integration
-├── types/               # TypeScript type definitions
-│   └── index.ts         # Type definitions
-├── utils/               # Utility functions
-│   ├── errors.ts        # Error handling utilities
-│   └── logger.ts        # Logging utilities
-└── index.ts             # Main entry point
-```
-
-## License
-
-MIT
+This feature is especially useful for large teams where automating the categorization of pull requests can significantly improve workflow efficiency.

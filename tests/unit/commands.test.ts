@@ -235,12 +235,13 @@ describe('Commands', () => {
     it('should display available commands', () => {
       helpAction();
 
-      // Now expecting 6 calls instead of 5 due to the new remove-labels command
-      expect(mockConsoleLog).toHaveBeenCalledTimes(6);
+      // Now expecting 7 calls instead of 6 due to the new suggest-labels command
+      expect(mockConsoleLog).toHaveBeenCalledTimes(7);
       expect(mockConsoleLog).toHaveBeenCalledWith('Available commands:');
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('add-labels'));
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('get-labels'));
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('remove-labels'));
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('suggest-labels'));
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('help'));
     });
   });

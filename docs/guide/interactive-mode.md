@@ -21,6 +21,7 @@ The interactive mode follows this general workflow:
    - Add labels to a repository
    - Get labels from a repository in JSON format
    - Remove labels from a repository
+   - Suggest labels for a pull request
    - Display available commands
    - Exit
 
@@ -75,6 +76,40 @@ When selecting "Remove labels from a repository", the interactive mode will:
 
 This is useful for cleaning up repositories by removing outdated, duplicate, or unwanted labels.
 
+## Interactively Suggesting Labels for Pull Requests
+
+When selecting "Suggest labels for a pull request", the interactive mode will:
+
+1. Prompt for your GitHub token (if not already provided)
+2. Ask for your OpenAI API key if the `OPENAI_API_KEY` environment variable is not set
+3. Display a list of your repositories for selection
+4. Fetch open pull requests from the selected repository
+5. Let you choose a pull request to analyze from the list:
+   ```
+   ? Select a pull request to analyze:
+     #42: Add new feature for label management
+     #45: Fix bug in repository selection
+   > #47: Update documentation for CLI commands
+     #51: Refactor GitHub API interaction
+   ```
+6. Analyze the pull request content using AI
+7. Display label suggestions with confidence scores and explanations:
+
+   ```
+   Here are the suggested labels for this pull request:
+
+   [EXISTING] documentation (Confidence: 95%)
+      Reason: This PR primarily updates documentation for CLI commands
+
+   [NEW] user-guide (Confidence: 80%)
+      Reason: The changes focus specifically on user-facing guide information
+   ```
+
+8. Ask if you want to apply the suggested labels to the pull request
+9. Apply the selected labels if confirmed
+
+This feature streamlines the process of labeling pull requests by using AI to analyze content and suggest appropriate labels, saving time and ensuring consistent categorization.
+
 ## Benefits of Interactive Mode
 
 - No need to remember command syntax
@@ -95,6 +130,7 @@ $ pnpm dev
   Add labels to a repository
   Get labels from a repository in JSON format
   Remove labels from a repository
+  Suggest labels for a pull request
   Display available commands
   Exit
 

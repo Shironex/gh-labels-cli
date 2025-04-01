@@ -1,7 +1,12 @@
 import inquirer from 'inquirer';
-import { addLabelsAction, getLabelsAction, helpAction, removeLabelAction } from './index';
+import {
+  addLabelsAction,
+  getLabelsAction,
+  helpAction,
+  removeLabelAction,
+  suggestLabelsAction,
+} from '@/commands';
 import { config } from 'dotenv';
-import { logger } from '@/utils/logger';
 
 config();
 
@@ -36,46 +41,43 @@ async function getGitHubToken(): Promise<string> {
  * Displays a menu with available commands and executes the selected one
  */
 export async function interactiveMode(): Promise<void> {
-  const { command } = await inquirer.prompt([
+  const { action } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'command',
-      message: 'Select a command:',
+      name: 'action',
+      message: 'What would you like to do?',
       choices: [
         { name: 'Add labels to a repository', value: 'add-labels' },
-        { name: 'Get labels from a repository in JSON format', value: 'get-labels' },
+        { name: 'Get labels from a repository', value: 'get-labels' },
         { name: 'Remove labels from a repository', value: 'remove-labels' },
+        { name: 'Suggest labels for a pull request', value: 'suggest-labels' },
         { name: 'Display available commands', value: 'help' },
         { name: 'Exit', value: 'exit' },
       ],
     },
   ]);
 
-  switch (command) {
-    case 'exit':
-      process.exit(0);
-
+  switch (action) {
     case 'add-labels':
       const addToken = await getGitHubToken();
       await addLabelsAction(addToken);
       break;
-
     case 'get-labels':
       const getLabelsToken = await getGitHubToken();
       await getLabelsAction(getLabelsToken);
       break;
-
     case 'remove-labels':
       const removeLabelsToken = await getGitHubToken();
       await removeLabelAction(removeLabelsToken);
       break;
-
+    case 'suggest-labels':
+      const suggestLabelsToken = await getGitHubToken();
+      await suggestLabelsAction(suggestLabelsToken);
+      break;
     case 'help':
       helpAction();
       break;
-
-    default:
-      logger.error('Invalid command');
-      process.exit(1);
+    case 'exit':
+      process.exit(0);
   }
 }

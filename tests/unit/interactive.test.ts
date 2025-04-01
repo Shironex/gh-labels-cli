@@ -42,7 +42,7 @@ describe('Interactive Mode', () => {
   it('should call addLabelsAction when add-labels command is selected', async () => {
     // First mock the command selection
     (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'add-labels',
+      action: 'add-labels',
     });
 
     // Then mock the token prompt
@@ -62,7 +62,7 @@ describe('Interactive Mode', () => {
   it('should call getLabelsAction when get-labels command is selected', async () => {
     // First mock the command selection
     (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'get-labels',
+      action: 'get-labels',
     });
 
     // Then mock the token prompt
@@ -81,7 +81,7 @@ describe('Interactive Mode', () => {
 
   it('should call helpAction when help command is selected', async () => {
     (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'help',
+      action: 'help',
     });
 
     await interactiveMode();
@@ -94,7 +94,7 @@ describe('Interactive Mode', () => {
 
   it('should call process.exit when exit command is selected', async () => {
     (inquirer.prompt as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      command: 'exit',
+      action: 'exit',
     });
 
     await expect(interactiveMode()).rejects.toThrow('process.exit unexpectedly called with "0"');

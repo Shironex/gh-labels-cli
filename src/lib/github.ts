@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import { logger } from '@/utils/logger';
 import { PublicError } from '@/utils/errors';
-import { GithubLabel } from '@/types';
+import { GithubLabel, PullRequestDetails, PullRequestFile } from '@/types';
 import defaultLabels from '../labels/default.json';
 
 config();
@@ -292,6 +292,122 @@ class GitHubManager {
     } catch (error: unknown) {
       throw new PublicError(
         `Failed to remove labels: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Get open pull requests from a repository
+   * @param repoFullName Full name of the repository (owner/repo)
+   * @returns List of pull requests
+   */
+  async getPullRequests(repoFullName: string): Promise<any[]> {
+    try {
+      const spinner = ora(`Fetching pull requests from repository: ${repoFullName} ...`).start();
+      const [owner, repo] = repoFullName.split('/');
+
+      const { data: pullRequests } = await this.octokit.pulls.list({
+        owner,
+        repo,
+        state: 'open',
+        per_page: 100,
+      });
+
+      spinner.succeed();
+      logger.success('Pull requests fetched successfully!');
+
+      return pullRequests;
+    } catch (error: unknown) {
+      if (error instanceof RequestError) {
+        throw new PublicError(`GitHub API error (${error.status}): ${error.message}`);
+      }
+      throw new PublicError(
+        `Failed to fetch pull requests: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Get detailed information about a pull request
+   * @param repoFullName Full name of the repository (owner/repo)
+   * @param pullNumber Pull request number
+   * @returns Detailed information about the pull request
+   */
+  async getPullRequestDetails(
+    repoFullName: string,
+    pullNumber: number
+  ): Promise<PullRequestDetails> {
+    try {
+      const [owner, repo] = repoFullName.split('/');
+
+      // Get PR information
+      const { data: pr } = await this.octokit.pulls.get({
+        owner,
+        repo,
+        pull_number: pullNumber,
+      });
+
+      // Get files changed in PR
+      const { data: files } = await this.octokit.pulls.listFiles({
+        owner,
+        repo,
+        pull_number: pullNumber,
+      });
+
+      // Convert files to our format
+      const formattedFiles: PullRequestFile[] = files.map(file => ({
+        name: file.filename,
+        status: file.status as 'added' | 'modified' | 'removed',
+        additions: file.additions,
+        deletions: file.deletions,
+        changes: file.changes,
+        patch: file.patch,
+      }));
+
+      return {
+        title: pr.title,
+        description: pr.body || '',
+        files: formattedFiles,
+        repo: repoFullName,
+      };
+    } catch (error: unknown) {
+      if (error instanceof RequestError) {
+        throw new PublicError(`GitHub API error (${error.status}): ${error.message}`);
+      }
+      throw new PublicError(
+        `Failed to fetch pull request details: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Add labels to a pull request
+   * @param repoFullName Full name of the repository (owner/repo)
+   * @param pullNumber Pull request number
+   * @param labels Array of label names to add
+   */
+  async addLabelsToPullRequest(
+    repoFullName: string,
+    pullNumber: number,
+    labels: string[]
+  ): Promise<void> {
+    try {
+      const [owner, repo] = repoFullName.split('/');
+
+      await this.octokit.issues.addLabels({
+        owner,
+        repo,
+        issue_number: pullNumber,
+        labels,
+      });
+
+      logger.success(`Labels added to pull request #${pullNumber}`);
+    } catch (error: unknown) {
+      if (error instanceof RequestError) {
+        throw new PublicError(`GitHub API error (${error.status}): ${error.message}`);
+      }
+      throw new PublicError(
+        `Failed to add labels to pull request: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
