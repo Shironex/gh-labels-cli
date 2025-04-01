@@ -6,9 +6,10 @@ Command-line tool for managing labels in GitHub repositories.
 
 - Fetch user's repositories list
 - Select a repository to manage labels
-- Choose labels to add from a predefined list
+- Choose labels to add from predefined templates
 - Add selected labels to the repository
-- Get all labels from a repository in JSON format
+- Get all labels from a repository and save them as templates
+- Use previously saved labels as templates for new repositories
 - Interactive mode for guided label management
 
 ## Installation
@@ -31,68 +32,77 @@ pnpm build
 # Run the tool in interactive mode
 pnpm start
 
-# Or after global installation
-gh-labels
+# Or during development
+pnpm dev
 ```
 
 ### Available Commands
 
 ```bash
 # Interactive mode (default when no command is specified)
-gh-labels
+pnpm dev
 
 # Add labels to a repository
-gh-labels add-labels -t "your_github_token"
+pnpm dev add-labels
 
 # Get all labels from a repository in JSON format
-gh-labels get-labels -t "your_github_token"
+pnpm dev get-labels
 
 # Display help information
-gh-labels help
+pnpm dev help
 ```
 
 ### GitHub Token
 
-The tool requires a GitHub token with repository management permissions. You can set the token in three ways:
+The tool requires a GitHub token with repository management permissions. You can set the token in two ways:
 
-1. As an environment variable `GITHUB_TOKEN` (only works when the project is cloned and run locally):
+1. As an environment variable `GITHUB_TOKEN`:
    - Create a `.env` file in the project root directory:
 
 ```
 GITHUB_TOKEN=your_github_token
 ```
 
-2. Use a `-t` or `--token` flag when running script (works with both local and global installation):
-
-```bash
-# Add labels to a repository
-gh-labels add-labels -t "your_github_token"
-
-# Get labels from a repository
-gh-labels get-labels -t "your_github_token"
-```
-
-3. When running in interactive mode, if no token is provided via environment variable or command line flag, you will be prompted to enter your GitHub token securely. Tokens are not stored anywhere so you will be prompted to enter it every time:
+2. When running in interactive mode, if no token is provided via environment variable, you will be prompted to enter your GitHub token securely:
 
 ```bash
 # Run in interactive mode and you'll be prompted for token when needed
-gh-labels
-# Select 'Add labels to a repository' or 'Get labels from a repository in JSON format'
+pnpm dev
 # You'll be prompted: 'Please enter your GitHub Personal Access Token:'
 ```
 
-### Development Mode
+### Label Templates
 
-When using the development mode with pnpm:
+When adding labels to a repository, you can choose from available templates:
 
-```bash
-# For interactive mode
-pnpm dev
+1. **Default template** - The default set of labels included with the tool
+2. **Custom templates** - Labels you've previously exported from other repositories using the `get-labels` command
 
-# For specific commands with token
-pnpm dev get-labels -t "your_github_token"
-pnpm dev add-labels -t "your_github_token"
+When running the `get-labels` command, the exported labels are saved to the `src/labels` directory with the repository name as the filename (e.g., `owner-repo.json`). These saved labels automatically become available as templates when adding labels to repositories.
+
+### Contributing Your Own Labels
+
+If you want to contribute your own label templates to use with the tool:
+
+1. Create a JSON file with your labels in the `src/labels/` directory
+2. Follow the format below:
+
+```json
+[
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something isn't working"
+  },
+  {
+    "name": "enhancement",
+    "color": "a2eeef",
+    "description": "New feature or request"
+  }
+]
 ```
+
+Your custom labels will automatically appear as a template option when running the `add-labels` command.
 
 ## Development
 
@@ -139,8 +149,8 @@ src/
 │   ├── help.ts          # Help command
 │   ├── index.ts         # Commands exports
 │   └── interactive.ts   # Interactive mode implementation
-├── json/                # JSON data files
-│   └── labels.json      # Predefined labels data
+├── labels/              # Label templates and exported labels
+│   └── default.json     # Default label template
 ├── lib/                 # Core functionality
 │   └── github.ts        # GitHub API integration
 ├── types/               # TypeScript type definitions
@@ -150,52 +160,6 @@ src/
 │   └── logger.ts        # Logging utilities
 └── index.ts             # Main entry point
 ```
-
-## TODO List
-
-Here are planned improvements for future development:
-
-### UI/UX Improvements
-
-- [ ] Add color support for terminal output using chalk or colors
-- [ ] Add progress indicators for long-running operations using ora
-- [ ] Add command aliases for easier typing (e.g., 'add' for 'add-labels')
-- [ ] Add verbose mode for debugging
-
-### Feature Enhancements
-
-- [ ] Implement label customization before adding to repository
-- [ ] Add label export/import functionality between repositories
-- [ ] Add label deletion functionality
-- [ ] Add configuration file support to save user preferences (Priority for tomorrow)
-  - Create a config manager to handle reading/writing configuration
-  - Store GitHub token securely (optional)
-  - Save favorite/recent repositories
-  - Save custom label templates
-  - Add commands to manage configuration (set, get, reset)
-  - Support for different configuration profiles
-- [ ] Add ability to update existing labels
-- [ ] Create a community-driven label registry
-  - Allow users to publish their label templates to a central registry
-  - Browse and download label templates created by the community
-  - Rate and comment on community templates
-  - Categories/tags for different types of projects (web, mobile, open source, etc.)
-  - Version control for templates
-  - Search functionality to find templates
-
-### Code Quality
-
-- [ ] Improve error handling with more specific error types
-- [ ] Add unit tests for new features
-- [ ] Add input validation for user inputs
-- [ ] Implement logging system for better debugging
-
-### Documentation
-
-- [ ] Add JSDoc comments to all functions
-- [ ] Create a detailed API documentation
-- [ ] Add examples for common use cases
-- [ ] Create a contributing guide
 
 ## License
 

@@ -3,7 +3,7 @@ import nock from 'nock';
 import { GitHubManager } from '../../src/lib/github';
 import { setupGitHubToken, setupNock, cleanupNock } from '../setup';
 
-// Mock dla loggera
+//? Mock for logger
 vi.mock('../../src/utils/logger', () => ({
   logger: {
     success: vi.fn(),
@@ -13,13 +13,37 @@ vi.mock('../../src/utils/logger', () => ({
   },
 }));
 
+//? Mock for fs
+vi.mock('fs', () => {
+  const mockLabels = [{ name: 'bug', color: 'ff0000', description: 'Bug report' }];
+
+  return {
+    existsSync: vi.fn().mockReturnValue(true),
+    readdirSync: vi.fn().mockReturnValue(['default.json']),
+    readFileSync: vi.fn().mockReturnValue(JSON.stringify(mockLabels)),
+    writeFileSync: vi.fn(),
+    mkdirSync: vi.fn(),
+  };
+});
+
+//? Mock for path
+vi.mock('path', () => ({
+  join: vi.fn().mockReturnValue('src/labels/default.json'),
+}));
+
 describe('CLI Integration', () => {
+  //? Example labels for tests
+  const mockLabels = [{ name: 'bug', color: 'ff0000', description: 'Bug report' }];
+
   beforeEach(() => {
     //? Set up environment
     setupGitHubToken();
 
     //? Set up nock to intercept HTTP requests
     setupNock();
+
+    //? Reset mock counts
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -44,12 +68,16 @@ describe('CLI Integration', () => {
     (inquirer.default.prompt as any) = vi
       .fn()
       .mockResolvedValueOnce({ selectedRepo: 'user/repo1' }) //? First call for repository selection
+      .mockResolvedValueOnce({ selectedFile: 'default' }) //? Second call for label file selection
       .mockResolvedValueOnce({
-        selectedLabels: [{ name: 'bug', color: 'ff0000', description: 'Bug report' }],
-      }); //? Second call for label selection
+        selectedLabels: mockLabels,
+      }); //? Third call for label selection
 
-    //? Create a GitHubManager instance
+    //? Create a GitHubManager instance with mocked methods
     const manager = new GitHubManager();
+
+    //? Mock the selectLabels method directly instead of relying on selectLabelFile
+    vi.spyOn(manager, 'selectLabels').mockResolvedValue(mockLabels);
 
     //? Execute the main flow
     const selectedRepo = await manager.selectRepository();

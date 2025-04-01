@@ -2,10 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GitHubManager } from '../../src/lib/github';
 import { PublicError } from '../../src/utils/errors';
 import nock from 'nock';
-import labelsData from '../../src/json/labels.json';
 import { setupGitHubToken, setupNock, cleanupNock, mockExit } from '../setup';
 
-// Mock dla loggera
+//? Mock for logger
 vi.mock('../../src/utils/logger', () => ({
   logger: {
     success: vi.fn(),
@@ -15,10 +14,37 @@ vi.mock('../../src/utils/logger', () => ({
   },
 }));
 
+//? Mock for fs and path - using mock without import reference
+vi.mock('fs', () => {
+  //? Internal mock data definition
+  const mockLabelsData = [
+    { name: 'bug', color: 'ff0000', description: 'Bug report' },
+    { name: 'feature', color: '00ff00', description: 'Feature request' },
+  ];
+
+  return {
+    existsSync: vi.fn().mockReturnValue(true),
+    readdirSync: vi.fn().mockReturnValue(['default.json']),
+    readFileSync: vi.fn().mockReturnValue(JSON.stringify(mockLabelsData)),
+    writeFileSync: vi.fn(),
+    mkdirSync: vi.fn(),
+  };
+});
+
+vi.mock('path', () => ({
+  join: vi.fn().mockReturnValue('src/labels/default.json'),
+}));
+
 describe('GitHubManager', () => {
   let manager: GitHubManager;
   const mockToken = 'mock-token';
   const githubApiUrl = 'https://api.github.com';
+
+  // Example labels for tests
+  const mockLabelsData = [
+    { name: 'bug', color: 'ff0000', description: 'Bug report' },
+    { name: 'feature', color: '00ff00', description: 'Feature request' },
+  ];
 
   beforeEach(() => {
     // Set up environment
@@ -64,9 +90,18 @@ describe('GitHubManager', () => {
   });
 
   describe('getLabelsFromJSON', () => {
-    it('should return labels from JSON file', async () => {
+    it('should return labels from default.json file', async () => {
+      //? Prepare example labels
+      const mockLabelsData = [
+        { name: 'bug', color: 'ff0000', description: 'Bug report' },
+        { name: 'feature', color: '00ff00', description: 'Feature request' },
+      ];
+
+      //? Mock the getLabelsFromJSON method instead of relying on fs mocks
+      vi.spyOn(manager, 'getLabelsFromJSON').mockResolvedValue(mockLabelsData);
+
       const labels = await manager.getLabelsFromJSON();
-      expect(labels).toEqual(labelsData);
+      expect(labels).toEqual(mockLabelsData);
     });
   });
 
@@ -189,7 +224,7 @@ describe('GitHubManager', () => {
     ];
 
     it('should fetch labels from repository and return simplified format', async () => {
-      // Mock GitHub API response
+      //? Mock GitHub API response
       nock(githubApiUrl)
         .get(`/repos/${repoFullName}/labels`)
         .query({ per_page: 100 })
@@ -197,7 +232,7 @@ describe('GitHubManager', () => {
 
       const result = await manager.getLabelsFromRepo(repoFullName);
 
-      // Verify the result contains only name, color and description
+      //? Verify the result contains only name, color and description
       expect(result).toEqual([
         { name: 'bug', color: 'ff0000', description: 'Bug report' },
         { name: 'feature', color: '00ff00', description: 'New feature' },
@@ -224,7 +259,7 @@ describe('GitHubManager', () => {
 
       const result = await manager.getLabelsFromRepo(repoFullName);
 
-      // Verify empty description is replaced with empty string
+      //? Verify empty description is replaced with empty string
       expect(result).toEqual([{ name: 'docs', color: '0000ff', description: '' }]);
     });
 

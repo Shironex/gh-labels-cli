@@ -8,7 +8,6 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/' },
-      // { text: 'API', link: '/api/' },
       { text: 'GitHub', link: 'https://github.com/Shironex/gh-labels-cli' },
     ],
 
@@ -19,7 +18,6 @@ export default defineConfig({
           items: [
             { text: 'Getting Started', link: '/guide/' },
             { text: 'Installation', link: '/guide/installation' },
-            { text: 'Configuration', link: '/guide/configuration' },
           ],
         },
         {
@@ -27,28 +25,20 @@ export default defineConfig({
           items: [
             { text: 'Basic Commands', link: '/guide/basic-commands' },
             { text: 'Interactive Mode', link: '/guide/interactive-mode' },
-            { text: 'Working with Labels', link: '/guide/working-with-labels' },
+            { text: 'Label Templates', link: '/guide/label-templates' },
+            { text: 'Label Best Practices', link: '/guide/best-practices' },
           ],
         },
-      ],
-      '/api/': [
         {
-          text: 'API Reference',
-          items: [
-            { text: 'Overview', link: '/api/' },
-            { text: 'Commands', link: '/api/commands' },
-            { text: 'GitHub Integration', link: '/api/github' },
-            { text: 'Configuration', link: '/api/configuration' },
-            { text: 'Types', link: '/api/types' },
-            { text: 'Utilities', link: '/api/utilities' },
-          ],
+          text: 'Development',
+          items: [{ text: 'Contributing', link: '/guide/contributing' }],
         },
       ],
     },
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024',
+      copyright: 'Copyright © 2025',
     },
 
     socialLinks: [{ icon: 'github', link: 'https://github.com/Shironex/gh-labels-cli' }],

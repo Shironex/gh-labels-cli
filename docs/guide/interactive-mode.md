@@ -1,213 +1,101 @@
 # Interactive Mode
 
-GitHub Labels CLI provides an interactive mode that makes it easier to manage labels through a series of prompts and menus. This guide covers how to use the interactive features effectively.
+GitHub Labels CLI provides an interactive mode that guides you through label management operations step by step.
 
 ## Starting Interactive Mode
 
-Launch the interactive mode:
+To start interactive mode, simply run the CLI without any specific command:
 
 ```bash
-gh-labels interactive
+pnpm dev
 ```
 
-Or use the shorthand:
+## Interactive Workflow
 
-```bash
-gh-labels i
-```
+The interactive mode follows this general workflow:
 
-## Navigation
+1. **Authentication**: If no GitHub token is found in environment variables, you will be prompted to enter your GitHub Personal Access Token.
 
-The interactive mode provides a menu-driven interface where you can:
+2. **Command Selection**: Choose from available commands:
 
-- Navigate using arrow keys
-- Select options with Enter
-- Go back with Escape
-- Exit with Ctrl+C
+   - Add labels to a repository
+   - Get labels from a repository in JSON format
+   - Display available commands
+   - Exit
 
-## Main Menu Options
+3. **Repository Selection**: Select a repository from the list of repositories you have access to.
 
-### 1. Repository Selection
+4. **Operation Execution**: Depending on the selected command, you'll be guided through additional steps.
 
-```
-? Select repository:
-❯ Current: owner/repo
-  Change repository
-  List repositories
-```
+## Adding Labels Interactively
 
-### 2. Label Management
+When selecting "Add labels to a repository", the interactive mode will:
 
-```
-? Choose action:
-❯ View labels
-  Create label
-  Edit label
-  Delete label
-  Apply template
-  Sync with another repository
-```
+1. Show a list of your GitHub repositories for selection
+2. If multiple label templates are available, prompt you to select one:
+   ```
+   ? Select a label template:
+     default (default template)
+     owner-repo1
+     owner-repo2
+   ```
+3. Display a checklist of labels from the selected template for you to choose from
+4. Add the selected labels to the chosen repository
+5. Show the results of the operation
 
-## Creating Labels Interactively
+## Getting Labels Interactively
 
-When creating a new label, you'll be prompted for:
+When selecting "Get labels from a repository in JSON format", the interactive mode will:
 
-1. Label name:
+1. Show a list of your GitHub repositories for selection
+2. Fetch all labels from the selected repository
+3. Save the labels to a JSON file in the `src/labels` directory, named after the repository (e.g., `src/labels/owner-repo.json`)
+4. Display the path to the saved file
 
-```
-? Enter label name: feature
-```
+This makes it easy to export and backup your repository labels or use them as templates for other repositories. Any labels saved with this command will automatically become available as templates when adding labels to repositories.
 
-2. Description:
+## Benefits of Interactive Mode
 
-```
-? Enter label description: New feature or enhancement
-```
+- No need to remember command syntax
+- Easy repository selection
+- Guided workflow for label operations
+- Visual feedback on operations progress and results
 
-3. Color (with preview):
+## Example Session
 
-```
-? Choose label color: (#0366d6)
-  [Preview: ██████]
-```
-
-## Editing Labels
-
-When editing a label, you'll first select from existing labels:
+Here's an example of what you'll see when using interactive mode:
 
 ```
-? Select label to edit:
-❯ bug        🔴 Something isn't working
-  feature    🔵 New feature or enhancement
-  docs       📘 Documentation updates
+$ pnpm dev
+
+? Please enter your GitHub Personal Access Token: ************************************
+
+? Select a command:
+  Add labels to a repository
+  Get labels from a repository in JSON format
+  Display available commands
+  Exit
+
+> Add labels to a repository
+
+✓ Fetching repositories ... Done!
+
+? Select a repository:
+  user/repo-1
+  user/repo-2
+> user/my-project
+  user/another-repo
+
+✓ Selected Repository: user/my-project
+
+? Select labels to add:
+ ◯ bug - Something isn't working
+ ◯ documentation - Improvements or additions to documentation
+ ◯ enhancement - New feature or request
+ ◯ good first issue - Good for newcomers
+ ◉ help wanted - Extra attention is needed
+ ◯ invalid - This doesn't seem right
+ ◯ question - Further information is requested
+
+✓ Label "help wanted" added successfully!
 ```
-
-Then choose what to modify:
-
-```
-? What would you like to edit?
-❯ Name
-  Description
-  Color
-  All properties
-```
-
-## Working with Templates
-
-### Applying Templates
-
-1. Select a template:
-
-```
-? Choose template:
-❯ standard
-  minimal
-  custom
-```
-
-2. Confirm actions:
-
-```
-? The following labels will be created:
-  - bug        🔴
-  - feature    🔵
-  - docs       📘
-  Proceed? (Y/n)
-```
-
-### Creating Templates
-
-Save current repository labels as a template:
-
-```
-? Enter template name: my-template
-? Description: My custom label set
-```
-
-## Synchronizing Repositories
-
-1. Select source:
-
-```
-? Select source:
-❯ Current repository
-  Another repository
-  Template
-```
-
-2. Select target:
-
-```
-? Select target repository:
-❯ owner/repo1
-  owner/repo2
-  Enter manually
-```
-
-3. Review changes:
-
-```
-? The following changes will be made:
-  + 3 labels to add
-  ~ 2 labels to update
-  - 1 label to remove
-  Proceed? (Y/n)
-```
-
-## Bulk Operations
-
-### Multi-select Mode
-
-Some operations support selecting multiple items:
-
-```
-? Select labels to delete: (Press <space> to select)
-❯ ◯ wontfix
-  ◯ duplicate
-  ◯ invalid
-```
-
-### Batch Processing
-
-When applying changes to multiple items:
-
-```
-? Processing 3 items:
-  ⠋ Processing... (1/3)
-```
-
-## Configuration in Interactive Mode
-
-Access configuration settings:
-
-```
-? Configuration options:
-❯ View current settings
-  Edit settings
-  Reset to defaults
-```
-
-## Tips for Interactive Mode
-
-1. **Quick Navigation**
-
-   - Type to filter lists
-   - Use number keys (1-9) for quick selection
-   - Press `?` for help
-
-2. **Color Selection**
-
-   - Use hex codes directly
-   - Choose from presets
-   - Preview colors in terminal
-
-3. **Keyboard Shortcuts**
-
-   - `Ctrl+C`: Exit
-   - `Esc`: Go back
-   - `Space`: Select in multi-select mode
-   - `Enter`: Confirm selection
-
-4. **Confirmation Prompts**
-   - Can be disabled in configuration
-   - Use `--no-confirm` flag to skip

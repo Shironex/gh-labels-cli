@@ -1,0 +1,172 @@
+[
+  {
+    "name": "⚠️ breaking-change",
+    "color": "B7BB8A",
+    "description": "Breaking changes requiring extra attention"
+  },
+  {
+    "name": "admin-dashboard",
+    "color": "436AD0",
+    "description": "Admin panel updates"
+  },
+  {
+    "name": "auth",
+    "color": "5C5624",
+    "description": "Authentication and authorization"
+  },
+  {
+    "name": "backend",
+    "color": "C25B04",
+    "description": "Changes in NestJS backend or Next js server actions"
+  },
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something isn't working"
+  },
+  {
+    "name": "dependencies",
+    "color": "0366d6",
+    "description": "Pull requests that update a dependency file"
+  },
+  {
+    "name": "documentation",
+    "color": "0075ca",
+    "description": "Improvements or additions to documentation"
+  },
+  {
+    "name": "duplicate",
+    "color": "cfd3d7",
+    "description": "This issue or pull request already exists"
+  },
+  {
+    "name": "e2e-tests",
+    "color": "ED8CE3",
+    "description": "End-to-end testing with Cypress"
+  },
+  {
+    "name": "enhancement",
+    "color": "a2eeef",
+    "description": "New feature or request"
+  },
+  {
+    "name": "frontend",
+    "color": "0C75F8",
+    "description": "Changes in Next.js frontend"
+  },
+  {
+    "name": "good first issue",
+    "color": "7057ff",
+    "description": "Good for newcomers"
+  },
+  {
+    "name": "help wanted",
+    "color": "008672",
+    "description": "Extra attention is needed"
+  },
+  {
+    "name": "invalid",
+    "color": "e4e669",
+    "description": "This doesn't seem right"
+  },
+  {
+    "name": "javascript",
+    "color": "168700",
+    "description": "Pull requests that update javascript code"
+  },
+  {
+    "name": "payments",
+    "color": "E5DA7F",
+    "description": "Stripe and payment-related changes"
+  },
+  {
+    "name": "question",
+    "color": "d876e3",
+    "description": "Further information is requested"
+  },
+  {
+    "name": "wontfix",
+    "color": "ffffff",
+    "description": "This will not be worked on"
+  },
+  {
+    "name": "⏳ awaiting-response",
+    "color": "63DDE9",
+    "description": "Waiting on the author or a stakeholder"
+  },
+  {
+    "name": "✅ ready-for-review",
+    "color": "39F9F0",
+    "description": "Ready for code review"
+  },
+  {
+    "name": "🌍 infrastructure",
+    "color": "EF183D",
+    "description": "Changes related to infrastructure (e.g., Terraform, VPS, Cloudflare)"
+  },
+  {
+    "name": "🐛 bugfix",
+    "color": "723ABC",
+    "description": "Fixing a bug"
+  },
+  {
+    "name": "📄 docs",
+    "color": "7799F0",
+    "description": "Documentation updates"
+  },
+  {
+    "name": "📦 deps",
+    "color": "8589CE",
+    "description": "Dependency updates"
+  },
+  {
+    "name": "🔄 needs-changes",
+    "color": "9AB57B",
+    "description": "Requires changes after review"
+  },
+  {
+    "name": "🔥 high-priority",
+    "color": "0F4FD3",
+    "description": "Urgent and critical changes"
+  },
+  {
+    "name": "🚀 feature",
+    "color": "C6E6F9",
+    "description": "New feature or functionality"
+  },
+  {
+    "name": "🚧 wip",
+    "color": "B788EF",
+    "description": "Work in progress"
+  },
+  {
+    "name": "🚫 do-not-merge",
+    "color": "6C85DC",
+    "description": "Not ready for merging"
+  },
+  {
+    "name": "🛠️ refactor",
+    "color": "FACE20",
+    "description": "Code refactoring without feature changes"
+  },
+  {
+    "name": "🧪 test",
+    "color": "97BD4B",
+    "description": "Adding or updating tests"
+  },
+  {
+    "name": "🧬 ci/cd",
+    "color": "97768A",
+    "description": "Changes to CI/CD pipelines or workflows"
+  },
+  {
+    "name": "🧹 cleanup",
+    "color": "EEA866",
+    "description": "Removing unused code, files, or dependencies"
+  },
+  {
+    "name": "🩹 hotfix",
+    "color": "D73A0B",
+    "description": "Quick fix to production"
+  }
+]

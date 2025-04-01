@@ -1,241 +1,120 @@
 # Basic Commands
 
-This guide covers the fundamental commands available in GitHub Labels CLI. Each command is explained with examples and common use cases.
+GitHub Labels CLI offers a set of simple commands to help you manage labels in your GitHub repositories.
 
-## Viewing Labels
+## Command Overview
 
-### List Labels in a Repository
+| Command               | Description                                     |
+| --------------------- | ----------------------------------------------- |
+| `pnpm dev`            | Run in interactive mode (default)               |
+| `pnpm dev add-labels` | Add predefined labels to a repository           |
+| `pnpm dev get-labels` | Get all labels from a repository in JSON format |
+| `pnpm dev help`       | Display help information                        |
 
-::: code-group
+## Interactive Mode
 
-```bash [Default]
-gh-labels list owner/repo
+Running the CLI without any specific command will start the interactive mode:
+
+```bash
+pnpm dev
 ```
 
-```bash [JSON Output]
-gh-labels list owner/repo --format json
+In interactive mode, you'll be guided through a series of prompts to:
+
+1. Enter your GitHub token (if not already provided)
+2. Select a command to execute
+3. Select a repository to work with
+4. Choose specific labels or options depending on the command
+
+## Adding Labels
+
+To add predefined labels to a repository:
+
+```bash
+pnpm dev add-labels
 ```
 
-```bash [Table Output]
-gh-labels list owner/repo --format table
+This command will:
+
+1. Prompt for your GitHub token (if not already provided)
+2. Display a list of your repositories for selection
+3. If multiple label templates are available in the `src/labels` directory, prompt you to select a template
+4. Show the available labels from the selected template for you to choose from
+5. Add the selected labels to the chosen repository
+
+The default label template is located at `src/labels/default.json`, but you can use labels from repositories you've previously exported with the `get-labels` command.
+
+## Getting Labels
+
+To retrieve all labels from a repository in JSON format:
+
+```bash
+pnpm dev get-labels
 ```
 
-:::
+This command will:
 
-### Get Label Details
+1. Prompt for your GitHub token (if not already provided)
+2. Display a list of your repositories for selection
+3. Fetch all labels from the selected repository
+4. Save the labels to a JSON file in the `src/labels` directory, named after the repository (e.g., `src/labels/owner-repo.json`)
 
-::: code-group
+The output file will contain all labels with their names, colors, and descriptions in JSON format. These saved labels can then be used as templates when adding labels to other repositories.
 
-```bash [Default]
-gh-labels get owner/repo "bug"
+## Creating Custom Label Templates
+
+You can create your own label templates to use with the CLI:
+
+1. Create a JSON file in the `src/labels/` directory with a descriptive name (e.g., `my-project.json`)
+2. Structure your file as an array of label objects with the following format:
+
+```json
+[
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something isn't working"
+  },
+  {
+    "name": "feature",
+    "color": "0366d6",
+    "description": "New feature or request"
+  }
+]
 ```
 
-```bash [With Format]
-gh-labels get owner/repo "bug" --format json
+Your custom template will automatically appear in the template selection list when you run the `add-labels` command.
+
+## Help
+
+To display available commands and options:
+
+```bash
+pnpm dev help
 ```
 
-:::
+This shows a list of all available commands and their descriptions.
 
-## Creating Labels
+## Examples
 
-### Create a Single Label
+### Adding Labels to a Repository
 
-::: code-group
+```bash
+# Interactive mode
+pnpm dev
+# Then select "Add labels to a repository"
 
-```bash [Basic]
-gh-labels add owner/repo "feature" --color "#0366d6"
+# Or directly
+pnpm dev add-labels
 ```
 
-```bash [With Description]
-gh-labels add owner/repo "feature" --color "#0366d6" --description "New feature or request"
+### Getting Labels from a Repository
+
+```bash
+# Interactive mode
+pnpm dev
+# Then select "Get labels from a repository in JSON format"
+
+# Or directly
+pnpm dev get-labels
 ```
-
-```bash [Force Update]
-gh-labels add owner/repo "feature" --color "#0366d6" --force
-```
-
-:::
-
-### Create Multiple Labels from a Template
-
-::: code-group
-
-```bash [Basic]
-gh-labels add-labels owner/repo --template standard
-```
-
-```bash [With Force]
-gh-labels add-labels owner/repo --template standard --force
-```
-
-```bash [Custom Template]
-gh-labels add-labels owner/repo --template ./my-template.json
-```
-
-:::
-
-## Updating Labels
-
-### Update Label Properties
-
-::: code-group
-
-```bash [Update Color]
-gh-labels update owner/repo "bug" --color "#d73a4a"
-```
-
-```bash [Update Description]
-gh-labels update owner/repo "bug" --description "Something isn't working"
-```
-
-```bash [Update Both]
-gh-labels update owner/repo "bug" --color "#d73a4a" --description "Something isn't working"
-```
-
-:::
-
-### Rename a Label
-
-::: code-group
-
-```bash [Basic]
-gh-labels rename owner/repo "bug" "issue"
-```
-
-```bash [With Force]
-gh-labels rename owner/repo "bug" "issue" --force
-```
-
-:::
-
-## Deleting Labels
-
-### Delete Labels
-
-::: code-group
-
-```bash [Single Label]
-gh-labels delete owner/repo "wontfix"
-```
-
-```bash [Multiple Labels]
-gh-labels delete owner/repo "duplicate" "invalid" "wontfix"
-```
-
-```bash [Force Delete]
-gh-labels delete owner/repo "wontfix" --force
-```
-
-:::
-
-## Working with Templates
-
-### Template Management
-
-::: code-group
-
-```bash [List Templates]
-gh-labels templates list
-```
-
-```bash [Show Template]
-gh-labels templates show standard
-```
-
-```bash [Create Template]
-gh-labels templates create my-template
-```
-
-:::
-
-## Synchronizing Labels
-
-### Copy Labels Between Repositories
-
-::: code-group
-
-```bash [Basic Sync]
-gh-labels sync source-owner/repo target-owner/repo
-```
-
-```bash [Dry Run]
-gh-labels sync source-owner/repo target-owner/repo --dry-run
-```
-
-```bash [Force Sync]
-gh-labels sync source-owner/repo target-owner/repo --force
-```
-
-:::
-
-### Apply Template to Multiple Repositories
-
-::: code-group
-
-```bash [Basic Apply]
-gh-labels sync-template standard owner/repo1 owner/repo2
-```
-
-```bash [With Options]
-gh-labels sync-template standard owner/repo1 owner/repo2 --force --delete-existing
-```
-
-:::
-
-## Common Options
-
-These options are available for most commands:
-
-::: code-group
-
-```bash [Authentication]
-gh-labels <command> --token "your-github-token"
-```
-
-```bash [Output Format]
-gh-labels <command> --format json
-```
-
-```bash [Quiet Mode]
-gh-labels <command> --quiet
-```
-
-```bash [No Confirm]
-gh-labels <command> --no-confirm
-```
-
-:::
-
-## Using Default Repository
-
-If you've set a default repository in your configuration:
-
-::: code-group
-
-```bash [Set Default]
-gh-labels config set defaultRepo "owner/repo"
-```
-
-```bash [Use Default]
-gh-labels list  # Lists labels from default repository
-```
-
-:::
-
-## Getting Help
-
-::: code-group
-
-```bash [General Help]
-gh-labels --help
-```
-
-```bash [Command Help]
-gh-labels add --help
-```
-
-```bash [Version]
-gh-labels --version
-```
-
-:::

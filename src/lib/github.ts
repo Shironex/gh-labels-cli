@@ -4,10 +4,12 @@ import ora from 'ora';
 import { Octokit } from '@octokit/rest';
 import { RequestError } from '@octokit/request-error';
 import { config } from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import { logger } from '@/utils/logger';
 import { PublicError } from '@/utils/errors';
 import { GithubLabel } from '@/types';
-import labelsData from '../json/labels.json';
+import defaultLabels from '../labels/default.json';
 
 config();
 
@@ -35,11 +37,81 @@ class GitHubManager {
     return this._octokit;
   }
 
+  /**
+   * Get all label files from the src/labels directory
+   */
+  private async getLabelFiles(): Promise<string[]> {
+    const labelsDir = path.join(process.cwd(), 'src', 'labels');
+
+    if (!fs.existsSync(labelsDir)) {
+      return ['default'];
+    }
+
+    try {
+      const files = fs
+        .readdirSync(labelsDir)
+        .filter(file => file.endsWith('.json'))
+        .map(file => file.replace('.json', ''));
+
+      return files.length ? files : ['default'];
+    } catch (error) {
+      logger.warning(
+        `Failed to read label files: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+      return ['default'];
+    }
+  }
+
+  /**
+   * Select a label file to use
+   */
+  private async selectLabelFile(): Promise<string> {
+    const labelFiles = await this.getLabelFiles();
+
+    if (labelFiles.length === 1) {
+      return labelFiles[0];
+    }
+
+    const { selectedFile } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'selectedFile',
+        message: 'Select a label template:',
+        choices: labelFiles.map(file => ({
+          name: file === 'default' ? `${file} (default template)` : file,
+          value: file,
+        })),
+      },
+    ]);
+
+    return selectedFile;
+  }
+
+  /**
+   * Load labels from the selected JSON file
+   */
   async getLabelsFromJSON(): Promise<GithubLabel[]> {
     try {
-      return labelsData;
+      const selectedFile = await this.selectLabelFile();
+
+      if (selectedFile === 'default') {
+        return defaultLabels as GithubLabel[];
+      }
+
+      const filePath = path.join(process.cwd(), 'src', 'labels', `${selectedFile}.json`);
+
+      if (!fs.existsSync(filePath)) {
+        logger.warning(`File ${filePath} does not exist, using default labels.`);
+        return defaultLabels as GithubLabel[];
+      }
+
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(fileContent) as GithubLabel[];
     } catch (error) {
-      throw new PublicError('Failed to load labels from labels.json.');
+      logger.warning(
+        `Failed to load labels from file: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+      return defaultLabels as GithubLabel[];
     }
   }
 
@@ -57,7 +129,7 @@ class GitHubManager {
       spinner.succeed();
       logger.success('Labels fetched successfully!');
 
-      // Mapowanie danych, aby zawierały tylko name, color i description
+      // Map data to include only name, color and description
       return labels.map(label => ({
         name: label.name,
         color: label.color,
