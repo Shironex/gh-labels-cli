@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import ora from 'ora';
 import { GitHubManager } from '@/lib/github';
 import { logger } from '@/utils/logger';
-import { PublicError } from '@/utils/errors';
+import { PublicError, OpenAIError, RateLimitError } from '@/utils/errors';
 import { openAIService } from '@/lib/openai';
 
 /**
@@ -93,8 +93,18 @@ export async function suggestLabelsAction(token?: string): Promise<void> {
     if (error instanceof PublicError) {
       logger.error(error.message);
       throw error;
+    } else if (error instanceof OpenAIError) {
+      logger.error(`Błąd usługi AI: ${error.message}`);
+      throw error;
+    } else if (error instanceof RateLimitError) {
+      logger.error('Limit żądań został przekroczony. Spróbuj ponownie później.');
+      throw error;
+    } else if (error instanceof Error && error.message.includes('network')) {
+      const errorMessage = 'Błąd sieci. Sprawdź połączenie internetowe i spróbuj ponownie.';
+      logger.error(errorMessage);
+      throw new PublicError(errorMessage);
     } else {
-      const errorMessage = `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      const errorMessage = `Nieoczekiwany błąd: ${error instanceof Error ? error.message : 'Nieznany błąd'}`;
       logger.error(errorMessage);
       throw new PublicError(errorMessage);
     }

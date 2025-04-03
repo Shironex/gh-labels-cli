@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { PublicError } from '@/utils/errors';
+import { PublicError, OpenAIError, RateLimitError } from '@/utils/errors';
 import { logger } from '@/utils/logger';
 import { PullRequestDetails, GithubLabel } from '@/types';
 import { zodResponseFormat } from 'openai/helpers/zod';
@@ -125,11 +125,20 @@ ${fileChanges}
         throw error;
       }
 
+      // Obsługa błędów związanych z limitami żądań
+      if (error instanceof Error && error.message.includes('rate limit')) {
+        logger.error(`Rate limit exceeded: ${error.message}`);
+        throw new RateLimitError(
+          'Limit żądań do API OpenAI został przekroczony. Spróbuj ponownie później.'
+        );
+      }
+
+      // Ogólne błędy OpenAI
       logger.error(
         `OpenAI API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
-      throw new PublicError(
-        `Failed to get label suggestions: ${error instanceof Error ? error.message : 'Unknown error'}`
+      throw new OpenAIError(
+        `Błąd usługi AI: ${error instanceof Error ? error.message : 'Nieznany błąd'}`
       );
     }
   }
