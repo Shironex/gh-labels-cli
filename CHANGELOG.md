@@ -1,3 +1,17 @@
+# [1.4.0](https://github.com/Shironex/gh-labels-cli/compare/v1.3.0...v1.4.0) (2025-04-03)
+
+
+### Bug Fixes
+
+* broken pnpm lock file ([aeb46b1](https://github.com/Shironex/gh-labels-cli/commit/aeb46b181abf0f85e1cd30e8d83c5fc9bd75e2f2))
+
+
+### Features
+
+* **ai:** add AI-powered label suggestions for pull requests ([109a61a](https://github.com/Shironex/gh-labels-cli/commit/109a61a9a6d610c63eb9ae0ed5841627f345e0cc))
+* **errors:** add OpenAIError and RateLimitError classes for better error handling ([618e231](https://github.com/Shironex/gh-labels-cli/commit/618e2314b748ef84706813a066c12abc2ee0f75b))
+* create a templates directory for storing prompt templates. ([091b057](https://github.com/Shironex/gh-labels-cli/commit/091b0579754d02b2a9473fa52514f3ce56b32edf))
+
 # [1.3.0](https://github.com/Shironex/gh-labels-cli/compare/v1.2.1...v1.3.0) (2025-04-01)
 
 
