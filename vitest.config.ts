@@ -10,7 +10,16 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['**/node_modules/**', '**/test/**', '**/*.d.ts', '**/*.config.ts', 'docs/**'],
+      exclude: [
+        '**/node_modules/**',
+        '**/test/**',
+        '**/*.d.ts',
+        '**/*.config.ts',
+        'docs/**',
+        'eslint.config.js',
+        'commitlint.config.js',
+        'src/templates/prompts/**',
+      ],
     },
     setupFiles: ['./tests/setup.ts'],
   },
