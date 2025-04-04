@@ -76,7 +76,7 @@ When selecting "Remove labels from a repository", the interactive mode will:
 
 This is useful for cleaning up repositories by removing outdated, duplicate, or unwanted labels.
 
-## Interactively Suggesting Labels for Pull Requests
+## Interactively Suggesting Labels and Descriptions for Pull Requests
 
 When selecting "Suggest labels for a pull request", the interactive mode will:
 
@@ -93,22 +93,37 @@ When selecting "Suggest labels for a pull request", the interactive mode will:
      #51: Refactor GitHub API interaction
    ```
 6. Analyze the pull request content using AI
-7. Display label suggestions with confidence scores and explanations:
+7. Display suggestions with confidence scores:
 
    ```
-   Here are the suggested labels for this pull request:
+   Here are the suggestions for this pull request:
 
+   Suggested Labels:
    [EXISTING] documentation (Confidence: 95%)
       Reason: This PR primarily updates documentation for CLI commands
 
    [NEW] user-guide (Confidence: 80%)
       Reason: The changes focus specifically on user-facing guide information
+
+   Suggested Description:
+   Confidence: 90%
+   This pull request updates the CLI documentation to include detailed information about
+   command usage and interactive mode features. The changes include:
+   - Enhanced command descriptions
+   - New examples for each command
+   - Updated interactive mode workflow
+   - Added troubleshooting section
    ```
 
-8. Ask if you want to apply the suggested labels to the pull request
-9. Apply the selected labels if confirmed
+8. Ask if you want to apply the suggested changes to the pull request
+9. Apply both the selected labels and the suggested description if confirmed
 
-This feature streamlines the process of labeling pull requests by using AI to analyze content and suggest appropriate labels, saving time and ensuring consistent categorization.
+This feature streamlines the process of documenting and categorizing pull requests by using AI to:
+
+- Analyze content and suggest appropriate labels
+- Generate comprehensive descriptions that capture the essence of changes
+- Save time on manual documentation
+- Maintain consistent PR documentation across the project
 
 ## Benefits of Interactive Mode
 

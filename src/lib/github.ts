@@ -411,6 +411,43 @@ class GitHubManager {
       );
     }
   }
+
+  /**
+   * Updates a pull request with new description and/or labels
+   */
+  async updatePullRequest(
+    repoFullName: string,
+    pullNumber: number,
+    updates: {
+      body?: string;
+      labels?: string[];
+    }
+  ): Promise<void> {
+    try {
+      const [owner, repo] = repoFullName.split('/');
+
+      // Update PR description and labels
+      await this.octokit.pulls.update({
+        owner,
+        repo,
+        pull_number: pullNumber,
+        body: updates.body,
+      });
+
+      if (updates.labels) {
+        await this.octokit.issues.setLabels({
+          owner,
+          repo,
+          issue_number: pullNumber,
+          labels: updates.labels,
+        });
+      }
+    } catch (error) {
+      throw new PublicError(
+        `Failed to update pull request: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
 }
 
 export { GitHubManager };
