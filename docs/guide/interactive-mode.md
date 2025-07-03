@@ -17,7 +17,6 @@ The interactive mode follows this general workflow:
 1. **Authentication**: If no GitHub token is found in environment variables, you will be prompted to enter your GitHub Personal Access Token.
 
 2. **Command Selection**: Choose from available commands:
-
    - Add labels to a repository
    - Get labels from a repository in JSON format
    - Remove labels from a repository

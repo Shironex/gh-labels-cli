@@ -1,7 +1,5 @@
 import inquirer from 'inquirer';
 import ora from 'ora';
-import fs from 'fs';
-import path from 'path';
 import { GitHubManager } from '@/lib/github';
 import { logger } from '@/utils/logger';
 import { PublicError, OpenAIError, RateLimitError } from '@/utils/errors';
@@ -35,12 +33,14 @@ async function getPRTemplate(
           const content = Buffer.from(data.content, 'base64').toString('utf-8');
           return content;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         continue; // Try next template path
       }
     }
 
     return undefined;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     logger.warning('Could not fetch PR template, proceeding without it.');
     return undefined;
