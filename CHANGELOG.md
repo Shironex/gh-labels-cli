@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/Shironex/gh-labels-cli/compare/v1.5.0...v1.5.1) (2025-07-03)
+
+
+### Bug Fixes
+
+* lint errors and remove old test file ([bc62401](https://github.com/Shironex/gh-labels-cli/commit/bc624014739416a0c1f41ecc5cdede05cfc07190))
+
 # [1.5.0](https://github.com/Shironex/gh-labels-cli/compare/v1.4.0...v1.5.0) (2025-07-03)
 
 
