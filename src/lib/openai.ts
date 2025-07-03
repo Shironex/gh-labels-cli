@@ -2,8 +2,6 @@ import OpenAI from 'openai';
 import { PublicError, OpenAIError, RateLimitError } from '@/utils/errors';
 import { logger } from '@/utils/logger';
 import { PullRequestDetails, GithubLabel } from '@/types';
-import { zodResponseFormat } from 'openai/helpers/zod';
-import { labelSuggestionSchema, prSuggestionSchema } from '@/schemas/pr-suggestions';
 
 /**
  * Interface for the label suggestion response

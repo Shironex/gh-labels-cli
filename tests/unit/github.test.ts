@@ -37,14 +37,7 @@ vi.mock('path', () => ({
 
 describe('GitHubManager', () => {
   let manager: GitHubManager;
-  const mockToken = 'mock-token';
   const githubApiUrl = 'https://api.github.com';
-
-  // Example labels for tests
-  const mockLabelsData = [
-    { name: 'bug', color: 'ff0000', description: 'Bug report' },
-    { name: 'feature', color: '00ff00', description: 'Feature request' },
-  ];
 
   beforeEach(() => {
     // Set up environment

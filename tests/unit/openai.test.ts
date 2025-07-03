@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { OpenAIService, LabelSuggestion } from '../../src/lib/openai';
+import { OpenAIService } from '../../src/lib/openai';
 import { PublicError } from '../../src/utils/errors';
 
 // Przygotowanie mocków
@@ -54,7 +54,7 @@ describe('OpenAIService', () => {
       const mockExistingLabels = [{ name: 'bug', color: 'ff0000', description: 'Bug report' }];
 
       await expect(
-        service.suggestLabels(mockPullRequestDetails, mockExistingLabels)
+        service.suggestPRContent(mockPullRequestDetails, mockExistingLabels)
       ).rejects.toThrow(PublicError);
     });
   });
