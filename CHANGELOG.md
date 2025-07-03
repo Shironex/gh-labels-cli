@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/Shironex/gh-labels-cli/compare/v1.4.0...v1.5.0) (2025-07-03)
+
+
+### Features
+
+* **ai:** extend label suggestions with pull request descriptions ([345c2e7](https://github.com/Shironex/gh-labels-cli/commit/345c2e7f1fd348b2c1958aafb359af35c3ef87c6))
+
 # [1.4.0](https://github.com/Shironex/gh-labels-cli/compare/v1.3.0...v1.4.0) (2025-04-03)
 
 
