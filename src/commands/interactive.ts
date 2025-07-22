@@ -6,6 +6,7 @@ import {
   removeLabelAction,
   suggestLabelsAction,
 } from '@/commands';
+import { SuggestLabelsOptions } from './suggest-labels';
 import { config } from 'dotenv';
 
 config();
@@ -72,7 +73,35 @@ export async function interactiveMode(): Promise<void> {
       break;
     case 'suggest-labels':
       const suggestLabelsToken = await getGitHubToken();
-      await suggestLabelsAction(suggestLabelsToken);
+
+      // Ask user about selective options
+      const { applyOptions } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'applyOptions',
+          message: 'What would you like to apply with AI suggestions?',
+          choices: [
+            { name: 'Both labels and description (default)', value: 'both' },
+            { name: 'Only labels', value: 'labels-only' },
+            { name: 'Only description', value: 'description-only' },
+          ],
+        },
+      ]);
+
+      let options: SuggestLabelsOptions = {};
+      switch (applyOptions) {
+        case 'labels-only':
+          options = { labelsOnly: true };
+          break;
+        case 'description-only':
+          options = { descriptionOnly: true };
+          break;
+        default:
+          options = {};
+          break;
+      }
+
+      await suggestLabelsAction(suggestLabelsToken, options);
       break;
     case 'help':
       helpAction();

@@ -265,4 +265,141 @@ describe('GitHubManager', () => {
       await expect(manager.getLabelsFromRepo(repoFullName)).rejects.toThrow(PublicError);
     });
   });
+
+  describe('updatePullRequest', () => {
+    const repoFullName = 'user/repo';
+    const pullNumber = 123;
+
+    it('should update both body and labels when both are provided', async () => {
+      const updates = {
+        body: 'Updated PR description',
+        labels: ['bug', 'feature'],
+      };
+
+      // Mock PR update
+      nock(githubApiUrl).patch(`/repos/${repoFullName}/pulls/${pullNumber}`).reply(200, {});
+
+      // Mock labels update
+      nock(githubApiUrl).put(`/repos/${repoFullName}/issues/${pullNumber}/labels`).reply(200, []);
+
+      await expect(
+        manager.updatePullRequest(repoFullName, pullNumber, updates)
+      ).resolves.not.toThrow();
+    });
+
+    it('should update only body when only body is provided', async () => {
+      const updates = {
+        body: 'Updated PR description',
+      };
+
+      // Mock PR update - should be called
+      nock(githubApiUrl).patch(`/repos/${repoFullName}/pulls/${pullNumber}`).reply(200, {});
+
+      // No labels endpoint should be called
+
+      await expect(
+        manager.updatePullRequest(repoFullName, pullNumber, updates)
+      ).resolves.not.toThrow();
+    });
+
+    it('should update only labels when only labels are provided', async () => {
+      const updates = {
+        labels: ['bug', 'feature'],
+      };
+
+      // No PR update should be called when body is undefined
+
+      // Mock labels update
+      nock(githubApiUrl).put(`/repos/${repoFullName}/issues/${pullNumber}/labels`).reply(200, []);
+
+      await expect(
+        manager.updatePullRequest(repoFullName, pullNumber, updates)
+      ).resolves.not.toThrow();
+    });
+
+    it('should not call any API when no updates are provided', async () => {
+      const updates = {};
+
+      // No API calls should be made
+
+      await expect(
+        manager.updatePullRequest(repoFullName, pullNumber, updates)
+      ).resolves.not.toThrow();
+    });
+
+    it('should not update body when body is explicitly undefined', async () => {
+      const updates = {
+        body: undefined,
+        labels: ['bug'],
+      };
+
+      // No PR update should be called when body is undefined
+
+      // Mock labels update
+      nock(githubApiUrl).put(`/repos/${repoFullName}/issues/${pullNumber}/labels`).reply(200, []);
+
+      await expect(
+        manager.updatePullRequest(repoFullName, pullNumber, updates)
+      ).resolves.not.toThrow();
+    });
+
+    it('should handle empty string body correctly', async () => {
+      const updates = {
+        body: '', // Empty string should still trigger update
+        labels: ['bug'],
+      };
+
+      // Mock PR update with empty body
+      nock(githubApiUrl).patch(`/repos/${repoFullName}/pulls/${pullNumber}`).reply(200, {});
+
+      // Mock labels update
+      nock(githubApiUrl).put(`/repos/${repoFullName}/issues/${pullNumber}/labels`).reply(200, []);
+
+      await expect(
+        manager.updatePullRequest(repoFullName, pullNumber, updates)
+      ).resolves.not.toThrow();
+    });
+
+    it('should throw PublicError when PR update fails', async () => {
+      const updates = {
+        body: 'Updated PR description',
+      };
+
+      nock(githubApiUrl)
+        .patch(`/repos/${repoFullName}/pulls/${pullNumber}`)
+        .reply(400, { message: 'Bad request' });
+
+      await expect(manager.updatePullRequest(repoFullName, pullNumber, updates)).rejects.toThrow(
+        PublicError
+      );
+    });
+
+    it('should throw PublicError when labels update fails', async () => {
+      const updates = {
+        labels: ['bug', 'feature'],
+      };
+
+      nock(githubApiUrl)
+        .put(`/repos/${repoFullName}/issues/${pullNumber}/labels`)
+        .reply(400, { message: 'Bad request' });
+
+      await expect(manager.updatePullRequest(repoFullName, pullNumber, updates)).rejects.toThrow(
+        PublicError
+      );
+    });
+
+    it('should throw PublicError with correct message when update fails', async () => {
+      const updates = {
+        body: 'Updated PR description',
+      };
+
+      nock(githubApiUrl)
+        .patch(`/repos/${repoFullName}/pulls/${pullNumber}`)
+        .reply(500, { message: 'Internal server error' });
+
+      await expect(manager.updatePullRequest(repoFullName, pullNumber, updates)).rejects.toThrow(
+        'Failed to update pull request:'
+      );
+    });
+  });
 });

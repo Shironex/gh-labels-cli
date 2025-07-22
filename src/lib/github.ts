@@ -426,13 +426,15 @@ class GitHubManager {
     try {
       const [owner, repo] = repoFullName.split('/');
 
-      // Update PR description and labels
-      await this.octokit.pulls.update({
-        owner,
-        repo,
-        pull_number: pullNumber,
-        body: updates.body,
-      });
+      // Only update PR description if body is provided
+      if (updates.body !== undefined) {
+        await this.octokit.pulls.update({
+          owner,
+          repo,
+          pull_number: pullNumber,
+          body: updates.body,
+        });
+      }
 
       if (updates.labels) {
         await this.octokit.issues.setLabels({
