@@ -62,6 +62,7 @@ vi.mock('../../src/lib/github', () => ({
   GitHubManager: vi.fn().mockImplementation(() => ({
     selectRepository: vi.fn().mockResolvedValue('user/repo'),
     addLabels: vi.fn().mockResolvedValue(undefined),
+    removeLabels: vi.fn().mockResolvedValue(undefined),
     getLabelsFromRepo: vi
       .fn()
       .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]),
@@ -81,7 +82,10 @@ vi.mock('../../src/utils/logger', () => ({
 vi.mock('ora', () => ({
   default: vi.fn(() => ({
     start: vi.fn().mockReturnThis(),
-    succeed: vi.fn(),
+    succeed: vi.fn().mockReturnThis(),
+    info: vi.fn().mockReturnThis(),
+    text: '',
+    fail: vi.fn().mockReturnThis(),
   })),
 }));
 
