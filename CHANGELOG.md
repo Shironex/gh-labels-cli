@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/Shironex/gh-labels-cli/compare/v1.5.1...v1.6.0) (2025-07-22)
+
+
+### Features
+
+* add selective AI options for suggest-labels command ([9e268ff](https://github.com/Shironex/gh-labels-cli/commit/9e268ff617b5e8d6c3664b3d0dc21491b2bc9bdd))
+
 ## [1.5.1](https://github.com/Shironex/gh-labels-cli/compare/v1.5.0...v1.5.1) (2025-07-03)
 
 
