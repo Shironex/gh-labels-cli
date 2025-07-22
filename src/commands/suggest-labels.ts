@@ -48,11 +48,35 @@ async function getPRTemplate(
 }
 
 /**
+ * Options for selective AI suggestions
+ */
+export interface SuggestLabelsOptions {
+  labelsOnly?: boolean;
+  descriptionOnly?: boolean;
+  noLabels?: boolean;
+  noDescription?: boolean;
+}
+
+/**
  * Suggest labels for a pull request using AI
  * @param token Optional GitHub token
+ * @param options Selective application options
  */
-export async function suggestLabelsAction(token?: string): Promise<void> {
+export async function suggestLabelsAction(
+  token?: string,
+  options: SuggestLabelsOptions = {}
+): Promise<void> {
   try {
+    // Determine what features to apply based on options
+    const applyLabels = !options.noLabels && (options.labelsOnly || !options.descriptionOnly);
+    const applyDescription =
+      !options.noDescription && (options.descriptionOnly || !options.labelsOnly);
+
+    // Validate options
+    if (!applyLabels && !applyDescription) {
+      throw new PublicError('At least one feature must be enabled. Cannot disable all options.');
+    }
+
     const spinner = ora('Starting AI suggestion analysis...').start();
     const github = new GitHubManager(token);
     spinner.succeed();
@@ -111,23 +135,27 @@ export async function suggestLabelsAction(token?: string): Promise<void> {
     // Display suggestions
     logger.info('\nHere are the suggestions for this pull request:');
 
-    logger.info('\nSuggested Labels:');
-    suggestions.labels.forEach(suggestion => {
-      const status = suggestion.isNew ? '[NEW]' : '[EXISTING]';
-      const confidence = `(Confidence: ${suggestion.confidence}%)`;
-      logger.info(`${status} ${suggestion.name} ${confidence}`);
-      logger.info(`   Reason: ${suggestion.description}`);
-      logger.info('');
-    });
+    if (applyLabels) {
+      logger.info('\nSuggested Labels:');
+      suggestions.labels.forEach(suggestion => {
+        const status = suggestion.isNew ? '[NEW]' : '[EXISTING]';
+        const confidence = `(Confidence: ${suggestion.confidence}%)`;
+        logger.info(`${status} ${suggestion.name} ${confidence}`);
+        logger.info(`   Reason: ${suggestion.description}`);
+        logger.info('');
+      });
+    }
 
-    logger.info('\nSuggested Description:');
-    logger.info('\nEnglish version:');
-    logger.info(`Confidence: ${suggestions.description.en.confidence}%`);
-    logger.info(suggestions.description.en.content);
-    logger.info('\nPolish version:');
-    logger.info(`Confidence: ${suggestions.description.pl.confidence}%`);
-    logger.info(suggestions.description.pl.content);
-    logger.info('');
+    if (applyDescription) {
+      logger.info('\nSuggested Description:');
+      logger.info('\nEnglish version:');
+      logger.info(`Confidence: ${suggestions.description.en.confidence}%`);
+      logger.info(suggestions.description.en.content);
+      logger.info('\nPolish version:');
+      logger.info(`Confidence: ${suggestions.description.pl.confidence}%`);
+      logger.info(suggestions.description.pl.content);
+      logger.info('');
+    }
 
     // Ask if user wants to apply changes
     const { shouldApply } = await inquirer.prompt([
@@ -140,32 +168,47 @@ export async function suggestLabelsAction(token?: string): Promise<void> {
     ]);
 
     if (shouldApply) {
-      const { language } = await inquirer.prompt<{ language: 'en' | 'pl' }>([
-        {
-          type: 'list',
-          name: 'language',
-          message: 'Which language version would you like to use?',
-          choices: [
-            { name: 'English', value: 'en' },
-            { name: 'Polish', value: 'pl' },
-          ],
-        },
-      ]);
+      // Only ask for language if description will be applied
+      let language: 'en' | 'pl' = 'en';
+      if (applyDescription) {
+        const languagePrompt = await inquirer.prompt<{ language: 'en' | 'pl' }>([
+          {
+            type: 'list',
+            name: 'language',
+            message: 'Which language version would you like to use for the description?',
+            choices: [
+              { name: 'English', value: 'en' },
+              { name: 'Polish', value: 'pl' },
+            ],
+          },
+        ]);
+        language = languagePrompt.language;
+      }
 
       spinner.text = 'Applying changes to pull request...';
       spinner.start();
 
-      // Filter out new labels if needed
-      const labelsToApply = suggestions.labels.map(s => s.name);
+      // Prepare update payload
+      const updatePayload: { body?: string; labels?: string[] } = {};
 
-      // Update PR description and labels
-      await github.updatePullRequest(repoFullName, selectedPR.number, {
-        body: suggestions.description[language].content,
-        labels: labelsToApply,
-      });
+      if (applyDescription) {
+        updatePayload.body = suggestions.description[language].content;
+      }
+
+      if (applyLabels) {
+        updatePayload.labels = suggestions.labels.map(s => s.name);
+      }
+
+      // Update PR with selected features
+      await github.updatePullRequest(repoFullName, selectedPR.number, updatePayload);
 
       spinner.succeed();
-      logger.success('Changes have been successfully applied to the pull request!');
+
+      const appliedFeatures = [];
+      if (applyLabels) appliedFeatures.push('labels');
+      if (applyDescription) appliedFeatures.push('description');
+
+      logger.success(`Successfully applied ${appliedFeatures.join(' and ')} to the pull request!`);
     } else {
       logger.info('No changes were applied.');
     }

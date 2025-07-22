@@ -48,9 +48,13 @@ program
 program
   .command('suggest-labels')
   .description('Analyze a pull request and suggest labels using AI')
-  .action(() => {
+  .option('--labels-only', 'Only apply suggested labels, skip description')
+  .option('--description-only', 'Only apply suggested description, skip labels')
+  .option('--no-labels', 'Skip applying labels')
+  .option('--no-description', 'Skip applying description')
+  .action(cmdOptions => {
     const options = program.opts();
-    suggestLabelsAction(options.token);
+    suggestLabelsAction(options.token, cmdOptions);
   });
 
 program.command('help').description('Display all available commands').action(helpAction);
