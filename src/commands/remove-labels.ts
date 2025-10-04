@@ -1,4 +1,3 @@
-import ora from 'ora';
 import { GitHubManager } from '@/lib/github';
 import { logger } from '@/utils/logger';
 import { PublicError } from '@/utils/errors';
