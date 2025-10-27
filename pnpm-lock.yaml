@@ -27,8 +27,8 @@ importers:
         specifier: ^12.9.6
         version: 12.9.6(@types/node@24.6.2)
       openai:
-        specifier: ^6.1.0
-        version: 6.1.0(ws@8.18.1)(zod@4.1.11)
+        specifier: ^6.7.0
+        version: 6.7.0(ws@8.18.1)(zod@4.1.11)
       ora:
         specifier: ^9.0.0
         version: 9.0.0
@@ -3237,8 +3237,8 @@ packages:
   oniguruma-to-es@3.1.1:
     resolution: {integrity: sha512-bUH8SDvPkH3ho3dvwJwfonjlQ4R80vjyvrU8YpxuROddv55vAEJrTuCuCVUhhsHbtlD9tGGbaNApGQckXhS8iQ==}
 
-  openai@6.1.0:
-    resolution: {integrity: sha512-5sqb1wK67HoVgGlsPwcH2bUbkg66nnoIYKoyV9zi5pZPqh7EWlmSrSDjAh4O5jaIg/0rIlcDKBtWvZBuacmGZg==}
+  openai@6.7.0:
+    resolution: {integrity: sha512-mgSQXa3O/UXTbA8qFzoa7aydbXBJR5dbLQXCRapAOtoNT+v69sLdKMZzgiakpqhclRnhPggPAXoniVGn2kMY2A==}
     hasBin: true
     peerDependencies:
       ws: ^8.18.0
@@ -7683,7 +7683,7 @@ snapshots:
       regex: 6.0.1
       regex-recursion: 6.0.2
 
-  openai@6.1.0(ws@8.18.1)(zod@4.1.11):
+  openai@6.7.0(ws@8.18.1)(zod@4.1.11):
     optionalDependencies:
       ws: 8.18.1
       zod: 4.1.11
