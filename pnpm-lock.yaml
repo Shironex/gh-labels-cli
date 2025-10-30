@@ -28,13 +28,13 @@ importers:
         version: 12.9.6(@types/node@24.9.1)
       openai:
         specifier: ^6.7.0
-        version: 6.7.0(ws@8.18.1)(zod@4.1.11)
+        version: 6.7.0(ws@8.18.1)(zod@4.1.12)
       ora:
         specifier: ^9.0.0
         version: 9.0.0
       zod:
-        specifier: ^4.1.11
-        version: 4.1.11
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@commitlint/cli':
         specifier: ^20.1.0
@@ -4456,8 +4456,8 @@ packages:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
     engines: {node: '>=18'}
 
-  zod@4.1.11:
-    resolution: {integrity: sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==}
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -7707,10 +7707,10 @@ snapshots:
       regex: 6.0.1
       regex-recursion: 6.0.2
 
-  openai@6.7.0(ws@8.18.1)(zod@4.1.11):
+  openai@6.7.0(ws@8.18.1)(zod@4.1.12):
     optionalDependencies:
       ws: 8.18.1
-      zod: 4.1.11
+      zod: 4.1.12
 
   optionator@0.9.4:
     dependencies:
@@ -8912,6 +8912,6 @@ snapshots:
 
   yoctocolors@2.1.2: {}
 
-  zod@4.1.11: {}
+  zod@4.1.12: {}
 
   zwitch@2.0.4: {}
