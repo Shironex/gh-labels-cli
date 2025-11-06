@@ -59,14 +59,15 @@ vi.mock('../../src/commands/get-labels', async () => {
 
 //? Mock dependencies
 vi.mock('../../src/lib/github', () => ({
-  GitHubManager: vi.fn().mockImplementation(() => ({
-    selectRepository: vi.fn().mockResolvedValue('user/repo'),
-    addLabels: vi.fn().mockResolvedValue(undefined),
-    removeLabels: vi.fn().mockResolvedValue(undefined),
-    getLabelsFromRepo: vi
+  GitHubManager: vi.fn().mockImplementation(function (this: any) {
+    this.selectRepository = vi.fn().mockResolvedValue('user/repo');
+    this.addLabels = vi.fn().mockResolvedValue(undefined);
+    this.removeLabels = vi.fn().mockResolvedValue(undefined);
+    this.getLabelsFromRepo = vi
       .fn()
-      .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]),
-  })),
+      .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]);
+    return this;
+  }),
 }));
 
 vi.mock('../../src/utils/logger', () => ({
@@ -116,9 +117,12 @@ describe('Commands', () => {
 
     it('should throw PublicError when an error occurs', async () => {
       const mockError = new Error('Test error');
-      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-        selectRepository: vi.fn().mockRejectedValue(mockError),
-      }));
+      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function (
+        this: any
+      ) {
+        this.selectRepository = vi.fn().mockRejectedValue(mockError);
+        return this;
+      });
 
       await expect(addLabelsAction()).rejects.toThrow(PublicError);
     });
@@ -148,9 +152,12 @@ describe('Commands', () => {
 
       //? Replace mocked GitHubManager implementation to return an error
       const mockError = new Error('Test error');
-      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-        selectRepository: vi.fn().mockRejectedValue(mockError),
-      }));
+      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function (
+        this: any
+      ) {
+        this.selectRepository = vi.fn().mockRejectedValue(mockError);
+        return this;
+      });
 
       //? Import real function after removing the mock
       const { getLabelsAction: actualGetLabelsAction } = await import(
@@ -187,13 +194,16 @@ describe('Commands', () => {
   describe('removeLabelAction', () => {
     it('should select repository and remove labels', async () => {
       // Make sure GitHubManager mock includes removeLabels method
-      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
-        selectRepository: vi.fn().mockResolvedValue('user/repo'),
-        removeLabels: vi.fn().mockResolvedValue(undefined),
-        getLabelsFromRepo: vi
+      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementation(function (
+        this: any
+      ) {
+        this.selectRepository = vi.fn().mockResolvedValue('user/repo');
+        this.removeLabels = vi.fn().mockResolvedValue(undefined);
+        this.getLabelsFromRepo = vi
           .fn()
-          .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]),
-      }));
+          .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]);
+        return this;
+      });
 
       // Mock ora
       vi.mock('ora', () => ({
@@ -217,9 +227,12 @@ describe('Commands', () => {
 
     it('should throw PublicError when an error occurs', async () => {
       const mockError = new Error('Test error');
-      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-        selectRepository: vi.fn().mockRejectedValue(mockError),
-      }));
+      (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function (
+        this: any
+      ) {
+        this.selectRepository = vi.fn().mockRejectedValue(mockError);
+        return this;
+      });
 
       // Mock ora for this test
       vi.mock('ora', () => ({
