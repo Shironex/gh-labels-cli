@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/Shironex/gh-labels-cli/compare/v1.6.0...v1.7.0) (2025-11-06)
+
+
+### Features
+
+* add AI-powered label suggestions for GitHub issues ([a7f8ff0](https://github.com/Shironex/gh-labels-cli/commit/a7f8ff0bd3679193dc1a549d55278c4050f4ac77))
+
 # [1.6.0](https://github.com/Shironex/gh-labels-cli/compare/v1.5.1...v1.6.0) (2025-07-22)
 
 
