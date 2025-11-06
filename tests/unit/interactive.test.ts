@@ -221,7 +221,7 @@ describe('Interactive Mode', () => {
       (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({ action: 'suggest-issue-labels' }) // Command selection
         .mockResolvedValueOnce({ token: 'mock-token' }) // Token prompt
-        .mockResolvedValueOnce({ applyIssueOptions: 'both' }); // Options selection
+        .mockResolvedValueOnce({ applyOptions: 'both' }); // Options selection
 
       await interactiveMode();
 
@@ -233,7 +233,7 @@ describe('Interactive Mode', () => {
       (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
         .mockResolvedValueOnce({ token: 'mock-token' })
-        .mockResolvedValueOnce({ applyIssueOptions: 'labels-only' });
+        .mockResolvedValueOnce({ applyOptions: 'labels-only' });
 
       await interactiveMode();
 
@@ -245,7 +245,7 @@ describe('Interactive Mode', () => {
       (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
         .mockResolvedValueOnce({ token: 'mock-token' })
-        .mockResolvedValueOnce({ applyIssueOptions: 'description-only' });
+        .mockResolvedValueOnce({ applyOptions: 'description-only' });
 
       await interactiveMode();
 
@@ -261,7 +261,7 @@ describe('Interactive Mode', () => {
 
       (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
-        .mockResolvedValueOnce({ applyIssueOptions: 'both' });
+        .mockResolvedValueOnce({ applyOptions: 'both' });
 
       await interactiveMode();
 
@@ -276,7 +276,7 @@ describe('Interactive Mode', () => {
       (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
         .mockResolvedValueOnce({ token: 'mock-token' })
-        .mockResolvedValueOnce({ applyIssueOptions: 'both' });
+        .mockResolvedValueOnce({ applyOptions: 'both' });
 
       await interactiveMode();
 
@@ -285,7 +285,7 @@ describe('Interactive Mode', () => {
       expect(inquirer.prompt).toHaveBeenCalledWith([
         {
           type: 'list',
-          name: 'applyIssueOptions',
+          name: 'applyOptions',
           message: 'What would you like to apply with AI suggestions?',
           choices: [
             { name: 'Both labels and description (default)', value: 'both' },

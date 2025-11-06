@@ -21,11 +21,15 @@ vi.mock('fs', () => {
 });
 
 //? Mock for path module
-vi.mock('path', () => {
+vi.mock('path', async () => {
+  const actual = await vi.importActual<typeof import('path')>('path');
   return {
     default: {
+      ...actual,
       join: vi.fn().mockReturnValue('src/labels/user-repo.json'),
+      dirname: actual.dirname,
     },
+    ...actual,
     join: vi.fn().mockReturnValue('src/labels/user-repo.json'),
   };
 });

@@ -2,7 +2,8 @@ import inquirer from 'inquirer';
 import ora from 'ora';
 import { GitHubManager } from '@/lib/github';
 import { logger } from '@/utils/logger';
-import { PublicError, OpenAIError, RateLimitError } from '@/utils/errors';
+import { PublicError } from '@/utils/errors';
+import { handleCommandError } from '@/utils/error-handler';
 import { openAIService } from '@/lib/openai';
 
 /**
@@ -215,23 +216,6 @@ export async function suggestIssueLabelsAction(
       logger.info('No changes were applied.');
     }
   } catch (error) {
-    if (error instanceof PublicError) {
-      logger.error(error.message);
-      throw error;
-    } else if (error instanceof OpenAIError) {
-      logger.error(`AI service error: ${error.message}`);
-      throw error;
-    } else if (error instanceof RateLimitError) {
-      logger.error('Rate limit exceeded. Please try again later.');
-      throw error;
-    } else if (error instanceof Error && error.message.includes('network')) {
-      const errorMessage = 'Network error. Check your internet connection and try again.';
-      logger.error(errorMessage);
-      throw new PublicError(errorMessage);
-    } else {
-      const errorMessage = `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      logger.error(errorMessage);
-      throw new PublicError(errorMessage);
-    }
+    handleCommandError(error, 'suggest-issue-labels');
   }
 }

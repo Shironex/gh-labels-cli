@@ -31,9 +31,18 @@ vi.mock('fs', () => {
   };
 });
 
-vi.mock('path', () => ({
-  join: vi.fn().mockReturnValue('src/labels/default.json'),
-}));
+vi.mock('path', async () => {
+  const actual = await vi.importActual<typeof import('path')>('path');
+  return {
+    default: {
+      ...actual,
+      join: vi.fn().mockReturnValue('src/labels/default.json'),
+      dirname: actual.dirname,
+    },
+    ...actual,
+    join: vi.fn().mockReturnValue('src/labels/default.json'),
+  };
+});
 
 describe('GitHubManager', () => {
   let manager: GitHubManager;

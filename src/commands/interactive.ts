@@ -8,7 +8,6 @@ import {
   suggestIssueLabelsAction,
 } from '@/commands';
 import { SuggestLabelsOptions } from './suggest-labels';
-import { SuggestIssueLabelsOptions } from './suggest-issue-labels';
 import { config } from 'dotenv';
 
 config();
@@ -40,6 +39,33 @@ async function getGitHubToken(): Promise<string> {
 }
 
 /**
+ * Helper function to get apply options for AI suggestions
+ */
+async function getApplyOptions(_type: 'PR' | 'issue'): Promise<SuggestLabelsOptions> {
+  const { applyOptions } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'applyOptions',
+      message: 'What would you like to apply with AI suggestions?',
+      choices: [
+        { name: 'Both labels and description (default)', value: 'both' },
+        { name: 'Only labels', value: 'labels-only' },
+        { name: 'Only description', value: 'description-only' },
+      ],
+    },
+  ]);
+
+  switch (applyOptions) {
+    case 'labels-only':
+      return { labelsOnly: true };
+    case 'description-only':
+      return { descriptionOnly: true };
+    default:
+      return {};
+  }
+}
+
+/**
  * Interactive command selection mode
  * Displays a menu with available commands and executes the selected one
  */
@@ -61,87 +87,39 @@ export async function interactiveMode(): Promise<void> {
     },
   ]);
 
+  // Handle exit and help commands that don't need a token
+  if (action === 'exit') {
+    process.exit(0);
+  }
+
+  if (action === 'help') {
+    helpAction();
+    return;
+  }
+
+  // Get token once for all operations that require it
+  const token = await getGitHubToken();
+
+  // Execute the selected action
   switch (action) {
     case 'add-labels':
-      const addToken = await getGitHubToken();
-      await addLabelsAction(addToken);
+      await addLabelsAction(token);
       break;
     case 'get-labels':
-      const getLabelsToken = await getGitHubToken();
-      await getLabelsAction(getLabelsToken);
+      await getLabelsAction(token);
       break;
     case 'remove-labels':
-      const removeLabelsToken = await getGitHubToken();
-      await removeLabelAction(removeLabelsToken);
+      await removeLabelAction(token);
       break;
-    case 'suggest-labels':
-      const suggestLabelsToken = await getGitHubToken();
-
-      // Ask user about selective options
-      const { applyOptions } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'applyOptions',
-          message: 'What would you like to apply with AI suggestions?',
-          choices: [
-            { name: 'Both labels and description (default)', value: 'both' },
-            { name: 'Only labels', value: 'labels-only' },
-            { name: 'Only description', value: 'description-only' },
-          ],
-        },
-      ]);
-
-      let options: SuggestLabelsOptions = {};
-      switch (applyOptions) {
-        case 'labels-only':
-          options = { labelsOnly: true };
-          break;
-        case 'description-only':
-          options = { descriptionOnly: true };
-          break;
-        default:
-          options = {};
-          break;
-      }
-
-      await suggestLabelsAction(suggestLabelsToken, options);
+    case 'suggest-labels': {
+      const options = await getApplyOptions('PR');
+      await suggestLabelsAction(token, options);
       break;
-    case 'suggest-issue-labels':
-      const suggestIssueLabelsToken = await getGitHubToken();
-
-      // Ask user about selective options
-      const { applyIssueOptions } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'applyIssueOptions',
-          message: 'What would you like to apply with AI suggestions?',
-          choices: [
-            { name: 'Both labels and description (default)', value: 'both' },
-            { name: 'Only labels', value: 'labels-only' },
-            { name: 'Only description', value: 'description-only' },
-          ],
-        },
-      ]);
-
-      let issueOptions: SuggestIssueLabelsOptions = {};
-      switch (applyIssueOptions) {
-        case 'labels-only':
-          issueOptions = { labelsOnly: true };
-          break;
-        case 'description-only':
-          issueOptions = { descriptionOnly: true };
-          break;
-        default:
-          issueOptions = {};
-          break;
-      }
-
-      await suggestIssueLabelsAction(suggestIssueLabelsToken, issueOptions);
+    }
+    case 'suggest-issue-labels': {
+      const options = await getApplyOptions('issue');
+      await suggestIssueLabelsAction(token, options);
       break;
-    case 'help':
-      helpAction();
-      break;
-    case 'exit':
-      process.exit(0);
+    }
   }
 }

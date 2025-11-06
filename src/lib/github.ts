@@ -6,10 +6,15 @@ import { RequestError } from '@octokit/request-error';
 import { config } from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { logger } from '@/utils/logger';
 import { PublicError } from '@/utils/errors';
 import { GithubLabel, PullRequestDetails, PullRequestFile, IssueDetails } from '@/types';
 import defaultLabels from '../labels/default.json';
+
+// Get the directory of the current module (works with ES modules)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 config();
 
@@ -41,7 +46,8 @@ class GitHubManager {
    * Get all label files from the src/labels directory
    */
   private async getLabelFiles(): Promise<string[]> {
-    const labelsDir = path.join(process.cwd(), 'src', 'labels');
+    // Use __dirname to get path relative to this file, not process.cwd()
+    const labelsDir = path.join(__dirname, '..', 'labels');
 
     if (!fs.existsSync(labelsDir)) {
       return ['default'];
@@ -98,7 +104,7 @@ class GitHubManager {
         return defaultLabels as GithubLabel[];
       }
 
-      const filePath = path.join(process.cwd(), 'src', 'labels', `${selectedFile}.json`);
+      const filePath = path.join(__dirname, '..', 'labels', `${selectedFile}.json`);
 
       if (!fs.existsSync(filePath)) {
         logger.warning(`File ${filePath} does not exist, using default labels.`);
