@@ -33,15 +33,13 @@ async function getPRTemplate(
           const content = Buffer.from(data.content, 'base64').toString('utf-8');
           return content;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         continue; // Try next template path
       }
     }
 
     return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
+  } catch {
     logger.warning('Could not fetch PR template, proceeding without it.');
     return undefined;
   }
@@ -217,17 +215,17 @@ export async function suggestLabelsAction(
       logger.error(error.message);
       throw error;
     } else if (error instanceof OpenAIError) {
-      logger.error(`Błąd usługi AI: ${error.message}`);
+      logger.error(`AI service error: ${error.message}`);
       throw error;
     } else if (error instanceof RateLimitError) {
-      logger.error('Limit żądań został przekroczony. Spróbuj ponownie później.');
+      logger.error('Rate limit exceeded. Please try again later.');
       throw error;
     } else if (error instanceof Error && error.message.includes('network')) {
-      const errorMessage = 'Błąd sieci. Sprawdź połączenie internetowe i spróbuj ponownie.';
+      const errorMessage = 'Network error. Check your internet connection and try again.';
       logger.error(errorMessage);
       throw new PublicError(errorMessage);
     } else {
-      const errorMessage = `Nieoczekiwany błąd: ${error instanceof Error ? error.message : 'Nieznany błąd'}`;
+      const errorMessage = `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`;
       logger.error(errorMessage);
       throw new PublicError(errorMessage);
     }

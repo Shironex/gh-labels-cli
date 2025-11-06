@@ -151,16 +151,14 @@ ${fileChanges}
 
       if (error instanceof Error && error.message.includes('rate limit')) {
         logger.error(`Rate limit exceeded: ${error.message}`);
-        throw new RateLimitError(
-          'Limit żądań do API OpenAI został przekroczony. Spróbuj ponownie później.'
-        );
+        throw new RateLimitError('OpenAI API rate limit exceeded. Please try again later.');
       }
 
       logger.error(
         `OpenAI API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       throw new OpenAIError(
-        `Błąd usługi AI: ${error instanceof Error ? error.message : 'Nieznany błąd'}`
+        `AI service error: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -325,16 +323,14 @@ ${issue.description || 'No description provided'}
 
       if (error instanceof Error && error.message.includes('rate limit')) {
         logger.error(`Rate limit exceeded: ${error.message}`);
-        throw new RateLimitError(
-          'Limit żądań do API OpenAI został przekroczony. Spróbuj ponownie później.'
-        );
+        throw new RateLimitError('OpenAI API rate limit exceeded. Please try again later.');
       }
 
       logger.error(
         `OpenAI API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       throw new OpenAIError(
-        `Błąd usługi AI: ${error instanceof Error ? error.message : 'Nieznany błąd'}`
+        `AI service error: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }

@@ -236,7 +236,7 @@ class GitHubManager {
           });
 
           logger.success(`Label "${label.name}" added successfully!`);
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof RequestError) {
             if (error.status === 422) {
               logger.warning(`Label "${label.name}" already exists. Skipping...`);
@@ -274,7 +274,7 @@ class GitHubManager {
           });
 
           logger.success(`Label "${labelName}" removed successfully!`);
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof RequestError) {
             if (error.status === 404) {
               logger.warning(`Label "${labelName}" not found. Skipping...`);
