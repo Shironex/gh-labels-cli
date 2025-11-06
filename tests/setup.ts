@@ -1,5 +1,25 @@
 import { vi } from 'vitest';
 import nock from 'nock';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+//? Mock for path module (preserve actual implementation)
+vi.mock('path', async () => {
+  const actual = await vi.importActual<typeof path>('path');
+  return {
+    default: actual,
+    ...actual,
+  };
+});
+
+//? Mock for url module (preserve actual implementation)
+vi.mock('url', async () => {
+  const actual = await vi.importActual<typeof import('url')>('url');
+  return {
+    ...actual,
+    fileURLToPath: actual.fileURLToPath,
+  };
+});
 
 //? Mock for inquirer
 vi.mock('inquirer', () => ({

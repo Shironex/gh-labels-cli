@@ -27,9 +27,18 @@ vi.mock('fs', () => {
 });
 
 //? Mock for path
-vi.mock('path', () => ({
-  join: vi.fn().mockReturnValue('src/labels/default.json'),
-}));
+vi.mock('path', async () => {
+  const actual = await vi.importActual<typeof import('path')>('path');
+  return {
+    default: {
+      ...actual,
+      join: vi.fn().mockReturnValue('src/labels/default.json'),
+      dirname: actual.dirname,
+    },
+    ...actual,
+    join: vi.fn().mockReturnValue('src/labels/default.json'),
+  };
+});
 
 describe('CLI Integration', () => {
   //? Example labels for tests

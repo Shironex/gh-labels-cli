@@ -6,10 +6,15 @@ import { RequestError } from '@octokit/request-error';
 import { config } from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { logger } from '@/utils/logger';
 import { PublicError } from '@/utils/errors';
 import { GithubLabel, PullRequestDetails, PullRequestFile, IssueDetails } from '@/types';
 import defaultLabels from '../labels/default.json';
+
+// Get the directory of the current module (works with ES modules)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 config();
 
@@ -20,8 +25,9 @@ class GitHubManager {
     const githubToken = token || process.env.GITHUB_TOKEN;
 
     if (!githubToken) {
-      logger.error('GitHub token is required.');
-      process.exit(1);
+      throw new PublicError(
+        'GitHub token is required. Please provide a token or set GITHUB_TOKEN environment variable.'
+      );
     }
 
     this._octokit = new Octokit({ auth: githubToken });
@@ -41,7 +47,8 @@ class GitHubManager {
    * Get all label files from the src/labels directory
    */
   private async getLabelFiles(): Promise<string[]> {
-    const labelsDir = path.join(process.cwd(), 'src', 'labels');
+    // Use __dirname to get path relative to this file, not process.cwd()
+    const labelsDir = path.join(__dirname, '..', 'labels');
 
     if (!fs.existsSync(labelsDir)) {
       return ['default'];
@@ -98,7 +105,7 @@ class GitHubManager {
         return defaultLabels as GithubLabel[];
       }
 
-      const filePath = path.join(process.cwd(), 'src', 'labels', `${selectedFile}.json`);
+      const filePath = path.join(__dirname, '..', 'labels', `${selectedFile}.json`);
 
       if (!fs.existsSync(filePath)) {
         logger.warning(`File ${filePath} does not exist, using default labels.`);
@@ -126,8 +133,7 @@ class GitHubManager {
         per_page: 100,
       });
 
-      spinner.succeed();
-      logger.success('Labels fetched successfully!');
+      spinner.succeed('Labels fetched successfully!');
 
       // Map data to include only name, color and description
       return labels.map(label => ({
@@ -196,8 +202,7 @@ class GitHubManager {
     const spinner = ora(`Fetching repositories ...`).start();
     const { data: repos } = await this.octokit.repos.listForAuthenticatedUser();
 
-    spinner.succeed();
-    logger.success('Done!');
+    spinner.succeed('Repositories fetched successfully!');
 
     if (repos.length === 0) {
       throw new PublicError('No repositories found.');
@@ -236,7 +241,7 @@ class GitHubManager {
           });
 
           logger.success(`Label "${label.name}" added successfully!`);
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof RequestError) {
             if (error.status === 422) {
               logger.warning(`Label "${label.name}" already exists. Skipping...`);
@@ -274,7 +279,7 @@ class GitHubManager {
           });
 
           logger.success(`Label "${labelName}" removed successfully!`);
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof RequestError) {
             if (error.status === 404) {
               logger.warning(`Label "${labelName}" not found. Skipping...`);

@@ -31,9 +31,18 @@ vi.mock('fs', () => {
   };
 });
 
-vi.mock('path', () => ({
-  join: vi.fn().mockReturnValue('src/labels/default.json'),
-}));
+vi.mock('path', async () => {
+  const actual = await vi.importActual<typeof import('path')>('path');
+  return {
+    default: {
+      ...actual,
+      join: vi.fn().mockReturnValue('src/labels/default.json'),
+      dirname: actual.dirname,
+    },
+    ...actual,
+    join: vi.fn().mockReturnValue('src/labels/default.json'),
+  };
+});
 
 describe('GitHubManager', () => {
   let manager: GitHubManager;
@@ -69,13 +78,12 @@ describe('GitHubManager', () => {
       expect(customManager.octokit).toBeDefined();
     });
 
-    it('should exit if no token is provided', () => {
+    it('should throw PublicError if no token is provided', () => {
       //? Remove token from environment
       const originalToken = process.env.GITHUB_TOKEN;
       delete process.env.GITHUB_TOKEN;
 
-      expect(() => new GitHubManager()).toThrow();
-      expect(mockExit).toHaveBeenCalledWith(1);
+      expect(() => new GitHubManager()).toThrow('GitHub token is required');
 
       //? Restore token
       process.env.GITHUB_TOKEN = originalToken;

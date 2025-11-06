@@ -35,9 +35,12 @@ export interface PRSuggestion {
  */
 export class OpenAIService {
   private client: OpenAI | null = null;
+  private readonly model: string;
 
   constructor() {
     const apiKey = process.env.OPENAI_API_KEY;
+    this.model = process.env.OPENAI_MODEL || 'gpt-4-turbo-preview';
+
     if (apiKey) {
       this.client = new OpenAI({ apiKey });
     } else {
@@ -90,7 +93,7 @@ ${fileChanges}
       const prompt = this.getPRSuggestionPrompt(prSummary, existingLabelInfo, prTemplate);
 
       const completion = await this.client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: this.model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
         response_format: { type: 'json_object' },
@@ -151,16 +154,14 @@ ${fileChanges}
 
       if (error instanceof Error && error.message.includes('rate limit')) {
         logger.error(`Rate limit exceeded: ${error.message}`);
-        throw new RateLimitError(
-          'Limit żądań do API OpenAI został przekroczony. Spróbuj ponownie później.'
-        );
+        throw new RateLimitError('OpenAI API rate limit exceeded. Please try again later.');
       }
 
       logger.error(
         `OpenAI API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       throw new OpenAIError(
-        `Błąd usługi AI: ${error instanceof Error ? error.message : 'Nieznany błąd'}`
+        `AI service error: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -264,7 +265,7 @@ ${issue.description || 'No description provided'}
       const prompt = this.getIssueSuggestionPrompt(issueSummary, existingLabelInfo, issueTemplate);
 
       const completion = await this.client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: this.model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
         response_format: { type: 'json_object' },
@@ -325,16 +326,14 @@ ${issue.description || 'No description provided'}
 
       if (error instanceof Error && error.message.includes('rate limit')) {
         logger.error(`Rate limit exceeded: ${error.message}`);
-        throw new RateLimitError(
-          'Limit żądań do API OpenAI został przekroczony. Spróbuj ponownie później.'
-        );
+        throw new RateLimitError('OpenAI API rate limit exceeded. Please try again later.');
       }
 
       logger.error(
         `OpenAI API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       throw new OpenAIError(
-        `Błąd usługi AI: ${error instanceof Error ? error.message : 'Nieznany błąd'}`
+        `AI service error: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }

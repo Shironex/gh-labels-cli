@@ -1,9 +1,14 @@
 import ora from 'ora';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { GitHubManager } from '@/lib/github';
 import { logger } from '@/utils/logger';
 import { PublicError } from '@/utils/errors';
+
+// Get the directory of the current module (works with ES modules)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function getLabelsAction(token?: string) {
   try {
@@ -14,9 +19,9 @@ export async function getLabelsAction(token?: string) {
 
     const labels = await manager.getLabelsFromRepo(selectedRepo);
 
-    // Use process.cwd() to get the current working directory
-    // and navigate to src/labels from the project root
-    const labelsDir = path.join(process.cwd(), 'src', 'labels');
+    // Use __dirname to get path relative to this file
+    // Navigate to src/labels from the commands directory
+    const labelsDir = path.join(__dirname, '..', 'labels');
     if (!fs.existsSync(labelsDir)) {
       fs.mkdirSync(labelsDir, { recursive: true });
     }
@@ -28,9 +33,8 @@ export async function getLabelsAction(token?: string) {
     // Save labels to file
     const spinner = ora('Saving labels to file...').start();
     fs.writeFileSync(outputPath, JSON.stringify(labels, null, 2));
-    spinner.succeed();
+    spinner.succeed(`Labels saved to ${outputPath}`);
 
-    logger.success(`Labels saved to ${outputPath}`);
     logger.info('You can now use these labels when adding labels to other repositories.');
   } catch (error) {
     if (error instanceof PublicError) {

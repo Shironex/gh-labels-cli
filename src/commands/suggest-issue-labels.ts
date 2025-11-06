@@ -2,7 +2,8 @@ import inquirer from 'inquirer';
 import ora from 'ora';
 import { GitHubManager } from '@/lib/github';
 import { logger } from '@/utils/logger';
-import { PublicError, OpenAIError, RateLimitError } from '@/utils/errors';
+import { PublicError } from '@/utils/errors';
+import { handleCommandError } from '@/utils/error-handler';
 import { openAIService } from '@/lib/openai';
 
 /**
@@ -21,8 +22,11 @@ async function getIssueTemplate(
       'issue_template.md',
     ];
 
+    logger.debug(`Searching for issue template in ${repoFullName}...`);
+
     for (const templatePath of templatePaths) {
       try {
+        logger.debug(`Trying path: ${templatePath}`);
         const { data } = await github.octokit.repos.getContent({
           owner,
           repo,
@@ -31,17 +35,18 @@ async function getIssueTemplate(
 
         if ('content' in data) {
           const content = Buffer.from(data.content, 'base64').toString('utf-8');
+          logger.debug(`Found issue template at: ${templatePath}`);
           return content;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
+        logger.debug(`Template not found at: ${templatePath}`);
         continue; // Try next template path
       }
     }
 
+    logger.debug('No issue template found in any standard location');
     return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
+  } catch {
     logger.warning('Could not fetch issue template, proceeding without it.');
     return undefined;
   }
@@ -217,23 +222,6 @@ export async function suggestIssueLabelsAction(
       logger.info('No changes were applied.');
     }
   } catch (error) {
-    if (error instanceof PublicError) {
-      logger.error(error.message);
-      throw error;
-    } else if (error instanceof OpenAIError) {
-      logger.error(`Błąd usługi AI: ${error.message}`);
-      throw error;
-    } else if (error instanceof RateLimitError) {
-      logger.error('Limit żądań został przekroczony. Spróbuj ponownie później.');
-      throw error;
-    } else if (error instanceof Error && error.message.includes('network')) {
-      const errorMessage = 'Błąd sieci. Sprawdź połączenie internetowe i spróbuj ponownie.';
-      logger.error(errorMessage);
-      throw new PublicError(errorMessage);
-    } else {
-      const errorMessage = `Nieoczekiwany błąd: ${error instanceof Error ? error.message : 'Nieznany błąd'}`;
-      logger.error(errorMessage);
-      throw new PublicError(errorMessage);
-    }
+    handleCommandError(error, 'suggest-issue-labels');
   }
 }
