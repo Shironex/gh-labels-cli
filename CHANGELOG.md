@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/Shironex/gh-labels-cli/compare/v1.7.0...v1.7.1) (2025-11-06)
+
+
+### Bug Fixes
+
+* **test:** after updating dependencies to latest version ([5d14b16](https://github.com/Shironex/gh-labels-cli/commit/5d14b16f2b5dbee3a89c5a3bade21ff947d1b4bc))
+
 # [1.7.0](https://github.com/Shironex/gh-labels-cli/compare/v1.6.0...v1.7.0) (2025-11-06)
 
 
