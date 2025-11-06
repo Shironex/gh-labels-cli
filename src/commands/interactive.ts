@@ -5,8 +5,10 @@ import {
   helpAction,
   removeLabelAction,
   suggestLabelsAction,
+  suggestIssueLabelsAction,
 } from '@/commands';
 import { SuggestLabelsOptions } from './suggest-labels';
+import { SuggestIssueLabelsOptions } from './suggest-issue-labels';
 import { config } from 'dotenv';
 
 config();
@@ -52,6 +54,7 @@ export async function interactiveMode(): Promise<void> {
         { name: 'Get labels from a repository', value: 'get-labels' },
         { name: 'Remove labels from a repository', value: 'remove-labels' },
         { name: 'Suggest labels for a pull request', value: 'suggest-labels' },
+        { name: 'Suggest labels for an issue', value: 'suggest-issue-labels' },
         { name: 'Display available commands', value: 'help' },
         { name: 'Exit', value: 'exit' },
       ],
@@ -102,6 +105,38 @@ export async function interactiveMode(): Promise<void> {
       }
 
       await suggestLabelsAction(suggestLabelsToken, options);
+      break;
+    case 'suggest-issue-labels':
+      const suggestIssueLabelsToken = await getGitHubToken();
+
+      // Ask user about selective options
+      const { applyIssueOptions } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'applyIssueOptions',
+          message: 'What would you like to apply with AI suggestions?',
+          choices: [
+            { name: 'Both labels and description (default)', value: 'both' },
+            { name: 'Only labels', value: 'labels-only' },
+            { name: 'Only description', value: 'description-only' },
+          ],
+        },
+      ]);
+
+      let issueOptions: SuggestIssueLabelsOptions = {};
+      switch (applyIssueOptions) {
+        case 'labels-only':
+          issueOptions = { labelsOnly: true };
+          break;
+        case 'description-only':
+          issueOptions = { descriptionOnly: true };
+          break;
+        default:
+          issueOptions = {};
+          break;
+      }
+
+      await suggestIssueLabelsAction(suggestIssueLabelsToken, issueOptions);
       break;
     case 'help':
       helpAction();
