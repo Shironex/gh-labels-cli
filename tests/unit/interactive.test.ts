@@ -4,6 +4,7 @@ import { addLabelsAction } from '../../src/commands/add-labels';
 import { getLabelsAction } from '../../src/commands/get-labels';
 import { helpAction } from '../../src/commands/help';
 import { suggestLabelsAction } from '../../src/commands/suggest-labels';
+import { suggestIssueLabelsAction } from '../../src/commands/suggest-issue-labels';
 import { removeLabelAction } from '../../src/commands/remove-labels';
 import inquirer from 'inquirer';
 import { mockExit } from '../setup';
@@ -23,6 +24,10 @@ vi.mock('../../src/commands/help', () => ({
 
 vi.mock('../../src/commands/suggest-labels', () => ({
   suggestLabelsAction: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../../src/commands/suggest-issue-labels', () => ({
+  suggestIssueLabelsAction: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('../../src/commands/remove-labels', () => ({
@@ -208,5 +213,87 @@ describe('Interactive Mode', () => {
     expect(getLabelsAction).not.toHaveBeenCalled();
     expect(suggestLabelsAction).not.toHaveBeenCalled();
     expect(helpAction).not.toHaveBeenCalled();
+  });
+
+  describe('suggest-issue-labels interactive mode', () => {
+    it('should call suggestIssueLabelsAction with default options when "both" is selected', async () => {
+      // Mock command selection and token prompt
+      (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({ action: 'suggest-issue-labels' }) // Command selection
+        .mockResolvedValueOnce({ token: 'mock-token' }) // Token prompt
+        .mockResolvedValueOnce({ applyIssueOptions: 'both' }); // Options selection
+
+      await interactiveMode();
+
+      expect(suggestIssueLabelsAction).toHaveBeenCalledTimes(1);
+      expect(suggestIssueLabelsAction).toHaveBeenCalledWith('mock-token', {});
+    });
+
+    it('should call suggestIssueLabelsAction with labelsOnly option when "labels-only" is selected', async () => {
+      (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
+        .mockResolvedValueOnce({ token: 'mock-token' })
+        .mockResolvedValueOnce({ applyIssueOptions: 'labels-only' });
+
+      await interactiveMode();
+
+      expect(suggestIssueLabelsAction).toHaveBeenCalledTimes(1);
+      expect(suggestIssueLabelsAction).toHaveBeenCalledWith('mock-token', { labelsOnly: true });
+    });
+
+    it('should call suggestIssueLabelsAction with descriptionOnly option when "description-only" is selected', async () => {
+      (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
+        .mockResolvedValueOnce({ token: 'mock-token' })
+        .mockResolvedValueOnce({ applyIssueOptions: 'description-only' });
+
+      await interactiveMode();
+
+      expect(suggestIssueLabelsAction).toHaveBeenCalledTimes(1);
+      expect(suggestIssueLabelsAction).toHaveBeenCalledWith('mock-token', {
+        descriptionOnly: true,
+      });
+    });
+
+    it('should use environment token when available for suggest-issue-labels', async () => {
+      // Set environment token
+      process.env.GITHUB_TOKEN = 'env-token';
+
+      (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
+        .mockResolvedValueOnce({ applyIssueOptions: 'both' });
+
+      await interactiveMode();
+
+      expect(suggestIssueLabelsAction).toHaveBeenCalledTimes(1);
+      expect(suggestIssueLabelsAction).toHaveBeenCalledWith('env-token', {});
+
+      // Clean up
+      delete process.env.GITHUB_TOKEN;
+    });
+
+    it('should prompt for selective options when suggest-issue-labels is selected', async () => {
+      (inquirer.prompt as unknown as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({ action: 'suggest-issue-labels' })
+        .mockResolvedValueOnce({ token: 'mock-token' })
+        .mockResolvedValueOnce({ applyIssueOptions: 'both' });
+
+      await interactiveMode();
+
+      // Verify that the options prompt was called
+      expect(inquirer.prompt).toHaveBeenCalledTimes(3);
+      expect(inquirer.prompt).toHaveBeenCalledWith([
+        {
+          type: 'list',
+          name: 'applyIssueOptions',
+          message: 'What would you like to apply with AI suggestions?',
+          choices: [
+            { name: 'Both labels and description (default)', value: 'both' },
+            { name: 'Only labels', value: 'labels-only' },
+            { name: 'Only description', value: 'description-only' },
+          ],
+        },
+      ]);
+    });
   });
 });

@@ -39,7 +39,7 @@ describe('OpenAIService', () => {
     });
   });
 
-  describe('suggestLabels', () => {
+  describe('suggestPRContent', () => {
     it('should throw PublicError when API key is missing', async () => {
       delete process.env.OPENAI_API_KEY;
       const service = new OpenAIService();
@@ -55,6 +55,57 @@ describe('OpenAIService', () => {
 
       await expect(
         service.suggestPRContent(mockPullRequestDetails, mockExistingLabels)
+      ).rejects.toThrow(PublicError);
+    });
+  });
+
+  describe('suggestIssueContent', () => {
+    it('should throw PublicError when API key is missing', async () => {
+      delete process.env.OPENAI_API_KEY;
+      const service = new OpenAIService();
+
+      const mockIssueDetails = {
+        title: 'Test Issue',
+        description: 'Test issue description',
+        repo: 'user/repo',
+        state: 'open' as const,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-02T00:00:00Z',
+      };
+
+      const mockExistingLabels = [{ name: 'bug', color: 'ff0000', description: 'Bug report' }];
+
+      await expect(
+        service.suggestIssueContent(mockIssueDetails, mockExistingLabels)
+      ).rejects.toThrow(PublicError);
+      await expect(
+        service.suggestIssueContent(mockIssueDetails, mockExistingLabels)
+      ).rejects.toThrow('OpenAI API key not found');
+    });
+
+    it('should throw PublicError when API key is missing with template', async () => {
+      delete process.env.OPENAI_API_KEY;
+      const service = new OpenAIService();
+
+      const mockIssueDetails = {
+        title: 'Bug Report',
+        description: 'Application crashes on startup',
+        repo: 'user/repo',
+        state: 'open' as const,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-02T00:00:00Z',
+      };
+
+      const mockExistingLabels = [
+        { name: 'bug', color: 'ff0000', description: 'Bug report' },
+        { name: 'critical', color: 'ff00ff', description: 'Critical issue' },
+      ];
+
+      const mockTemplate =
+        '## Bug Report\n\n**Steps to Reproduce:**\n\n**Expected:**\n\n**Actual:**';
+
+      await expect(
+        service.suggestIssueContent(mockIssueDetails, mockExistingLabels, mockTemplate)
       ).rejects.toThrow(PublicError);
     });
   });

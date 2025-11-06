@@ -402,4 +402,221 @@ describe('GitHubManager', () => {
       );
     });
   });
+
+  describe('getIssues', () => {
+    const repoFullName = 'user/repo';
+
+    it('should fetch open issues and filter out pull requests', async () => {
+      const mockIssuesAndPRs = [
+        {
+          id: 1,
+          number: 10,
+          title: 'This is an issue',
+          state: 'open',
+          body: 'Issue description',
+        },
+        {
+          id: 2,
+          number: 11,
+          title: 'This is a PR',
+          state: 'open',
+          body: 'PR description',
+          pull_request: { url: 'https://api.github.com/repos/user/repo/pulls/11' },
+        },
+        {
+          id: 3,
+          number: 12,
+          title: 'Another issue',
+          state: 'open',
+          body: 'Another issue description',
+        },
+      ];
+
+      nock(githubApiUrl)
+        .get(`/repos/${repoFullName}/issues`)
+        .query({ state: 'open', per_page: 100 })
+        .reply(200, mockIssuesAndPRs);
+
+      const result = await manager.getIssues(repoFullName);
+
+      // Should only return issues, not PRs
+      expect(result).toHaveLength(2);
+      expect(result[0].number).toBe(10);
+      expect(result[1].number).toBe(12);
+      expect(result.every(issue => !issue.pull_request)).toBe(true);
+    });
+
+    it('should return empty array when no issues exist', async () => {
+      nock(githubApiUrl)
+        .get(`/repos/${repoFullName}/issues`)
+        .query({ state: 'open', per_page: 100 })
+        .reply(200, []);
+
+      const result = await manager.getIssues(repoFullName);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should throw PublicError when API request fails', async () => {
+      nock(githubApiUrl)
+        .get(`/repos/${repoFullName}/issues`)
+        .query({ state: 'open', per_page: 100 })
+        .reply(404, { message: 'Not found' });
+
+      await expect(manager.getIssues(repoFullName)).rejects.toThrow(PublicError);
+    });
+  });
+
+  describe('getIssueDetails', () => {
+    const repoFullName = 'user/repo';
+    const issueNumber = 42;
+
+    it('should fetch and return issue details', async () => {
+      const mockIssue = {
+        number: issueNumber,
+        title: 'Bug in authentication',
+        body: 'Users cannot login',
+        state: 'open',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-02T00:00:00Z',
+      };
+
+      nock(githubApiUrl).get(`/repos/${repoFullName}/issues/${issueNumber}`).reply(200, mockIssue);
+
+      const result = await manager.getIssueDetails(repoFullName, issueNumber);
+
+      expect(result).toEqual({
+        title: 'Bug in authentication',
+        description: 'Users cannot login',
+        repo: repoFullName,
+        state: 'open',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-02T00:00:00Z',
+      });
+    });
+
+    it('should handle issue with no body', async () => {
+      const mockIssue = {
+        number: issueNumber,
+        title: 'Issue without body',
+        body: null,
+        state: 'open',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+      };
+
+      nock(githubApiUrl).get(`/repos/${repoFullName}/issues/${issueNumber}`).reply(200, mockIssue);
+
+      const result = await manager.getIssueDetails(repoFullName, issueNumber);
+
+      expect(result.description).toBe('');
+    });
+
+    it('should throw PublicError when API request fails', async () => {
+      nock(githubApiUrl)
+        .get(`/repos/${repoFullName}/issues/${issueNumber}`)
+        .reply(404, { message: 'Not found' });
+
+      await expect(manager.getIssueDetails(repoFullName, issueNumber)).rejects.toThrow(PublicError);
+    });
+  });
+
+  describe('updateIssue', () => {
+    const repoFullName = 'user/repo';
+    const issueNumber = 42;
+
+    it('should update both body and labels when both are provided', async () => {
+      const updates = {
+        body: 'Updated issue description',
+        labels: ['bug', 'priority-high'],
+      };
+
+      // Mock issue update
+      nock(githubApiUrl).patch(`/repos/${repoFullName}/issues/${issueNumber}`).reply(200, {});
+
+      // Mock labels update
+      nock(githubApiUrl).put(`/repos/${repoFullName}/issues/${issueNumber}/labels`).reply(200, []);
+
+      await expect(manager.updateIssue(repoFullName, issueNumber, updates)).resolves.not.toThrow();
+    });
+
+    it('should update only body when only body is provided', async () => {
+      const updates = {
+        body: 'Updated issue description',
+      };
+
+      // Mock issue update - should be called
+      nock(githubApiUrl).patch(`/repos/${repoFullName}/issues/${issueNumber}`).reply(200, {});
+
+      await expect(manager.updateIssue(repoFullName, issueNumber, updates)).resolves.not.toThrow();
+    });
+
+    it('should update only labels when only labels are provided', async () => {
+      const updates = {
+        labels: ['bug', 'enhancement'],
+      };
+
+      // Mock labels update - should be called
+      nock(githubApiUrl).put(`/repos/${repoFullName}/issues/${issueNumber}/labels`).reply(200, []);
+
+      await expect(manager.updateIssue(repoFullName, issueNumber, updates)).resolves.not.toThrow();
+    });
+
+    it('should handle empty body update', async () => {
+      const updates = {
+        body: '',
+        labels: ['bug'],
+      };
+
+      // Mock issue update with empty body
+      nock(githubApiUrl).patch(`/repos/${repoFullName}/issues/${issueNumber}`).reply(200, {});
+
+      // Mock labels update
+      nock(githubApiUrl).put(`/repos/${repoFullName}/issues/${issueNumber}/labels`).reply(200, []);
+
+      await expect(manager.updateIssue(repoFullName, issueNumber, updates)).resolves.not.toThrow();
+    });
+
+    it('should throw PublicError when issue update fails', async () => {
+      const updates = {
+        body: 'Updated issue description',
+      };
+
+      nock(githubApiUrl)
+        .patch(`/repos/${repoFullName}/issues/${issueNumber}`)
+        .reply(400, { message: 'Bad request' });
+
+      await expect(manager.updateIssue(repoFullName, issueNumber, updates)).rejects.toThrow(
+        PublicError
+      );
+    });
+
+    it('should throw PublicError when labels update fails', async () => {
+      const updates = {
+        labels: ['bug', 'feature'],
+      };
+
+      nock(githubApiUrl)
+        .put(`/repos/${repoFullName}/issues/${issueNumber}/labels`)
+        .reply(400, { message: 'Bad request' });
+
+      await expect(manager.updateIssue(repoFullName, issueNumber, updates)).rejects.toThrow(
+        PublicError
+      );
+    });
+
+    it('should throw PublicError with correct message when update fails', async () => {
+      const updates = {
+        body: 'Updated issue description',
+      };
+
+      nock(githubApiUrl)
+        .patch(`/repos/${repoFullName}/issues/${issueNumber}`)
+        .reply(500, { message: 'Internal server error' });
+
+      await expect(manager.updateIssue(repoFullName, issueNumber, updates)).rejects.toThrow(
+        'Failed to update issue:'
+      );
+    });
+  });
 });
