@@ -4,14 +4,15 @@ GitHub Labels CLI offers a set of simple commands to help you manage labels in y
 
 ## Command Overview
 
-| Command                   | Description                                        |
-| ------------------------- | -------------------------------------------------- |
-| `pnpm dev`                | Run in interactive mode (default)                  |
-| `pnpm dev add-labels`     | Add predefined labels to a repository              |
-| `pnpm dev get-labels`     | Get all labels from a repository in JSON format    |
-| `pnpm dev remove-labels`  | Remove labels from a repository                    |
-| `pnpm dev suggest-labels` | Analyze a pull request and suggest labels using AI |
-| `pnpm dev help`           | Display help information                           |
+| Command                         | Description                               |
+| ------------------------------- | ----------------------------------------- |
+| `pnpm dev`                      | Run in interactive mode (default)         |
+| `pnpm dev add-labels`           | Add predefined labels to a repository     |
+| `pnpm dev get-labels`           | Get all labels from a repository in JSON  |
+| `pnpm dev remove-labels`        | Remove labels from a repository           |
+| `pnpm dev suggest-labels`       | Analyze a pull request and suggest labels |
+| `pnpm dev suggest-issue-labels` | Analyze an issue and suggest labels       |
+| `pnpm dev help`                 | Display help information                  |
 
 ## Interactive Mode
 
@@ -83,6 +84,8 @@ This is useful for cleaning up repositories by removing outdated, duplicate, or 
 
 ## Suggesting Labels with AI
 
+### For Pull Requests
+
 To analyze a pull request and get AI-powered label suggestions:
 
 ```bash
@@ -92,15 +95,77 @@ pnpm dev suggest-labels
 This command will:
 
 1. Prompt for your GitHub token (if not already provided)
-2. Ask for your OpenAI API key if the `OPENAI_API_KEY` environment variable is not set
+2. Require your OpenAI API key from the `OPENAI_API_KEY` environment variable
 3. Display a list of your repositories for selection
 4. Fetch open pull requests from the selected repository
 5. Let you choose a pull request to analyze
 6. Analyze the pull request content, including title, description, and changed files
-7. Generate label suggestions based on the analysis, with confidence scores and explanations
-8. Let you choose whether to apply the suggested labels to the pull request
+7. Generate label suggestions with confidence scores and explanations
+8. Generate comprehensive descriptions in English and Polish
+9. Let you choose whether to apply the suggested labels and/or description
 
-This feature uses OpenAI's API to intelligently analyze pull requests and suggest the most appropriate labels, making it easier to keep your repositories organized without manually reviewing each PR for labeling.
+**Command Options:**
+
+```bash
+# Apply only labels
+pnpm dev suggest-labels --labels-only
+
+# Apply only description
+pnpm dev suggest-labels --description-only
+
+# Skip labels
+pnpm dev suggest-labels --no-labels
+
+# Skip description
+pnpm dev suggest-labels --no-description
+```
+
+### For Issues
+
+To analyze an issue and get AI-powered label suggestions:
+
+```bash
+pnpm dev suggest-issue-labels
+```
+
+This command will:
+
+1. Prompt for your GitHub token (if not already provided)
+2. Require your OpenAI API key from the `OPENAI_API_KEY` environment variable
+3. Display a list of your repositories for selection
+4. Fetch open issues from the selected repository
+5. Let you choose an issue to analyze
+6. Analyze the issue content, including title, description, and metadata
+7. Classify the issue type (bug, feature request, question, etc.)
+8. Generate label suggestions with confidence scores and explanations
+9. Generate comprehensive descriptions in English and Polish
+10. Let you choose whether to apply the suggested labels and/or description
+
+**Command Options:**
+
+```bash
+# Apply only labels
+pnpm dev suggest-issue-labels --labels-only
+
+# Apply only description
+pnpm dev suggest-issue-labels --description-only
+
+# Skip labels
+pnpm dev suggest-issue-labels --no-labels
+
+# Skip description
+pnpm dev suggest-issue-labels --no-description
+```
+
+### Benefits
+
+These AI-powered features use OpenAI's API to intelligently analyze pull requests and issues, making it easier to:
+
+- Keep repositories organized without manually reviewing each item
+- Maintain consistent labeling across your project
+- Generate comprehensive, well-formatted descriptions
+- Save time on documentation and categorization
+- Ensure important changes and issues are properly documented
 
 ## Creating Custom Label Templates
 

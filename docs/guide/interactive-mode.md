@@ -21,6 +21,7 @@ The interactive mode follows this general workflow:
    - Get labels from a repository in JSON format
    - Remove labels from a repository
    - Suggest labels for a pull request
+   - Suggest labels for an issue
    - Display available commands
    - Exit
 
@@ -75,12 +76,14 @@ When selecting "Remove labels from a repository", the interactive mode will:
 
 This is useful for cleaning up repositories by removing outdated, duplicate, or unwanted labels.
 
-## Interactively Suggesting Labels and Descriptions for Pull Requests
+## AI-Powered Label and Description Suggestions
+
+### For Pull Requests
 
 When selecting "Suggest labels for a pull request", the interactive mode will:
 
 1. Prompt for your GitHub token (if not already provided)
-2. Ask for your OpenAI API key if the `OPENAI_API_KEY` environment variable is not set
+2. Require your OpenAI API key from the `OPENAI_API_KEY` environment variable
 3. Display a list of your repositories for selection
 4. Fetch open pull requests from the selected repository
 5. Let you choose a pull request to analyze from the list:
@@ -91,8 +94,12 @@ When selecting "Suggest labels for a pull request", the interactive mode will:
    > #47: Update documentation for CLI commands
      #51: Refactor GitHub API interaction
    ```
-6. Analyze the pull request content using AI
-7. Display suggestions with confidence scores:
+6. Ask what to apply with AI suggestions:
+   - Both labels and description (default)
+   - Only labels
+   - Only description
+7. Analyze the pull request content using AI
+8. Display suggestions with confidence scores:
 
    ```
    Here are the suggestions for this pull request:
@@ -105,24 +112,99 @@ When selecting "Suggest labels for a pull request", the interactive mode will:
       Reason: The changes focus specifically on user-facing guide information
 
    Suggested Description:
+
+   English version:
    Confidence: 90%
+   docs: update CLI command documentation
+
    This pull request updates the CLI documentation to include detailed information about
    command usage and interactive mode features. The changes include:
    - Enhanced command descriptions
    - New examples for each command
    - Updated interactive mode workflow
    - Added troubleshooting section
+
+   Polish version:
+   Confidence: 90%
+   docs: aktualizacja dokumentacji poleceń CLI
+   ...
    ```
 
-8. Ask if you want to apply the suggested changes to the pull request
-9. Apply both the selected labels and the suggested description if confirmed
+9. Ask if you want to apply the suggested changes
+10. If applying description, ask which language version to use (English/Polish)
+11. Apply the selected labels and/or description
 
-This feature streamlines the process of documenting and categorizing pull requests by using AI to:
+### For Issues
 
-- Analyze content and suggest appropriate labels
-- Generate comprehensive descriptions that capture the essence of changes
-- Save time on manual documentation
-- Maintain consistent PR documentation across the project
+When selecting "Suggest labels for an issue", the interactive mode will:
+
+1. Prompt for your GitHub token (if not already provided)
+2. Require your OpenAI API key from the `OPENAI_API_KEY` environment variable
+3. Display a list of your repositories for selection
+4. Fetch open issues from the selected repository
+5. Let you choose an issue to analyze from the list:
+   ```
+   ? Select an issue to analyze:
+     #10: Application crashes on startup
+     #12: Feature request: Add dark mode
+   > #15: Documentation unclear about authentication
+     #18: Performance issue with large repositories
+   ```
+6. Ask what to apply with AI suggestions:
+   - Both labels and description (default)
+   - Only labels
+   - Only description
+7. Analyze the issue content using AI
+8. Display suggestions with confidence scores:
+
+   ```
+   Here are the suggestions for this issue:
+
+   Suggested Labels:
+   [EXISTING] bug (Confidence: 95%)
+      Reason: Issue describes application crash - clear bug report
+
+   [NEW] critical (Confidence: 85%)
+      Reason: Prevents core functionality from working
+
+   Suggested Description:
+
+   English version:
+   Confidence: 90%
+   ## Bug Report
+
+   **Issue Type:** Critical Bug
+
+   **Summary:**
+   Application crashes when submitting form with empty email field
+
+   **Expected Behavior:**
+   Form should display validation error
+
+   **Actual Behavior:**
+   Application crashes with null pointer exception
+   ...
+
+   Polish version:
+   Confidence: 90%
+   ## Raport Błędu
+   ...
+   ```
+
+9. Ask if you want to apply the suggested changes
+10. If applying description, ask which language version to use (English/Polish)
+11. Apply the selected labels and/or description
+
+### Benefits
+
+These AI-powered features streamline the process of documenting and categorizing pull requests and issues by:
+
+- Analyzing content and suggesting appropriate labels
+- Classifying issue types (bug, feature, question, etc.)
+- Generating comprehensive descriptions that capture the essence of changes
+- Providing bilingual support (English and Polish)
+- Saving time on manual documentation
+- Maintaining consistent documentation across the project
 
 ## Benefits of Interactive Mode
 
@@ -145,6 +227,7 @@ $ pnpm dev
   Get labels from a repository in JSON format
   Remove labels from a repository
   Suggest labels for a pull request
+  Suggest labels for an issue
   Display available commands
   Exit
 

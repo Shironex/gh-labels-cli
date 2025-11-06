@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import { logger } from '@/utils/logger';
 import { PublicError } from '@/utils/errors';
-import { GithubLabel, PullRequestDetails, PullRequestFile } from '@/types';
+import { GithubLabel, PullRequestDetails, PullRequestFile, IssueDetails } from '@/types';
 import defaultLabels from '../labels/default.json';
 
 config();
@@ -447,6 +447,117 @@ class GitHubManager {
     } catch (error) {
       throw new PublicError(
         `Failed to update pull request: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Get open issues from a repository
+   * @param repoFullName Full name of the repository (owner/repo)
+   * @returns List of issues
+   */
+  async getIssues(repoFullName: string): Promise<any[]> {
+    try {
+      const spinner = ora(`Fetching issues from repository: ${repoFullName} ...`).start();
+      const [owner, repo] = repoFullName.split('/');
+
+      const { data: issues } = await this.octokit.issues.listForRepo({
+        owner,
+        repo,
+        state: 'open',
+        per_page: 100,
+      });
+
+      // Filter out pull requests (GitHub API returns PRs as issues)
+      const filteredIssues = issues.filter(issue => !issue.pull_request);
+
+      spinner.succeed();
+      logger.success('Issues fetched successfully!');
+
+      return filteredIssues;
+    } catch (error: unknown) {
+      if (error instanceof RequestError) {
+        throw new PublicError(`GitHub API error (${error.status}): ${error.message}`);
+      }
+      throw new PublicError(
+        `Failed to fetch issues: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Get detailed information about an issue
+   * @param repoFullName Full name of the repository (owner/repo)
+   * @param issueNumber Issue number
+   * @returns Detailed information about the issue
+   */
+  async getIssueDetails(repoFullName: string, issueNumber: number): Promise<IssueDetails> {
+    try {
+      const [owner, repo] = repoFullName.split('/');
+
+      // Get issue information
+      const { data: issue } = await this.octokit.issues.get({
+        owner,
+        repo,
+        issue_number: issueNumber,
+      });
+
+      return {
+        title: issue.title,
+        description: issue.body || '',
+        repo: repoFullName,
+        state: issue.state as 'open' | 'closed',
+        created_at: issue.created_at,
+        updated_at: issue.updated_at,
+      };
+    } catch (error: unknown) {
+      if (error instanceof RequestError) {
+        throw new PublicError(`GitHub API error (${error.status}): ${error.message}`);
+      }
+      throw new PublicError(
+        `Failed to fetch issue details: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Updates an issue with new description and/or labels
+   * @param repoFullName Full name of the repository (owner/repo)
+   * @param issueNumber Issue number
+   * @param updates Object containing optional body and labels to update
+   */
+  async updateIssue(
+    repoFullName: string,
+    issueNumber: number,
+    updates: {
+      body?: string;
+      labels?: string[];
+    }
+  ): Promise<void> {
+    try {
+      const [owner, repo] = repoFullName.split('/');
+
+      // Only update issue description if body is provided
+      if (updates.body !== undefined) {
+        await this.octokit.issues.update({
+          owner,
+          repo,
+          issue_number: issueNumber,
+          body: updates.body,
+        });
+      }
+
+      if (updates.labels) {
+        await this.octokit.issues.setLabels({
+          owner,
+          repo,
+          issue_number: issueNumber,
+          labels: updates.labels,
+        });
+      }
+    } catch (error) {
+      throw new PublicError(
+        `Failed to update issue: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }

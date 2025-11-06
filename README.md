@@ -11,6 +11,8 @@ Command-line tool for managing labels in GitHub repositories.
 - Add selected labels to the repository
 - Get all labels from a repository and save them as templates
 - Use previously saved labels as templates for new repositories
+- AI-powered label and description suggestions for pull requests
+- AI-powered label and description suggestions for issues
 - Interactive mode for guided label management
 
 ## Installation
@@ -52,8 +54,11 @@ pnpm dev get-labels
 # Remove labels from a repository
 pnpm dev remove-labels
 
-# Suggest labels for a pull request
+# Suggest labels for a pull request using AI
 pnpm dev suggest-labels
+
+# Suggest labels for an issue using AI
+pnpm dev suggest-issue-labels
 
 # Display help information
 pnpm dev help
@@ -61,26 +66,70 @@ pnpm dev help
 
 ## AI-Powered Label and Description Suggestions
 
-The `suggest-labels` feature uses artificial intelligence to analyze pull requests and automatically suggest appropriate labels and descriptions. This feature analyzes:
+The AI-powered suggestion features use artificial intelligence to analyze pull requests and issues, automatically suggesting appropriate labels and descriptions.
+
+### For Pull Requests (`suggest-labels`)
+
+Analyzes:
 
 - Pull request title and description
 - Files that have been changed
 - Existing labels in the repository
 - Code changes and their context
 
-To use this feature:
+Usage:
 
-1. Set your OpenAI API key in the `OPENAI_API_KEY` environment variable.
-2. Run the command `pnpm dev suggest-labels` or select "Suggest labels for a pull request" in interactive mode.
-3. Select a repository and then choose a pull request to analyze.
-4. The AI will analyze the pull request content and suggest:
+1. Set your OpenAI API key in the `OPENAI_API_KEY` environment variable
+2. Run `pnpm dev suggest-labels` or select "Suggest labels for a pull request" in interactive mode
+3. Select a repository and choose a pull request to analyze
+4. Review and apply the AI-generated suggestions:
    - Appropriate labels with explanations and confidence scores
-   - A comprehensive description that summarizes the changes
-5. You can review and apply both the suggested labels and description to the pull request.
+   - Comprehensive description following Conventional Commits specification
 
-This feature is especially useful for:
+### For Issues (`suggest-issue-labels`)
 
-- Large teams where automating PR categorization can improve workflow efficiency
-- Maintaining consistent PR descriptions across the project
-- Ensuring important changes are properly documented
-- Saving time on manual PR reviews and documentation
+Analyzes:
+
+- Issue title and description
+- Issue state and metadata
+- Existing labels in the repository
+- Issue type classification (bug, feature, question, etc.)
+
+Usage:
+
+1. Set your OpenAI API key in the `OPENAI_API_KEY` environment variable
+2. Run `pnpm dev suggest-issue-labels` or select "Suggest labels for an issue" in interactive mode
+3. Select a repository and choose an issue to analyze
+4. Review and apply the AI-generated suggestions:
+   - Relevant labels with explanations and confidence scores
+   - Comprehensive issue description with context and recommendations
+
+### Command Options
+
+Both commands support selective application:
+
+```bash
+# Apply only labels
+pnpm dev suggest-labels --labels-only
+pnpm dev suggest-issue-labels --labels-only
+
+# Apply only description
+pnpm dev suggest-labels --description-only
+pnpm dev suggest-issue-labels --description-only
+
+# Skip labels
+pnpm dev suggest-labels --no-labels
+pnpm dev suggest-issue-labels --no-labels
+
+# Skip description
+pnpm dev suggest-labels --no-description
+pnpm dev suggest-issue-labels --no-description
+```
+
+### Benefits
+
+- **Automated Categorization**: Improve workflow efficiency in large teams
+- **Consistent Documentation**: Maintain uniform descriptions across the project
+- **Bilingual Support**: Generates descriptions in both English and Polish
+- **Time Savings**: Reduce manual review and documentation effort
+- **Quality Assurance**: Ensures important changes are properly documented
