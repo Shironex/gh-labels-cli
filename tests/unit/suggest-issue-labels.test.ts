@@ -7,25 +7,26 @@ import { PublicError } from '../../src/utils/errors';
 
 // Mock all dependencies
 vi.mock('../../src/lib/github', () => ({
-  GitHubManager: vi.fn().mockImplementation(() => ({
-    selectRepository: vi.fn().mockResolvedValue('user/repo'),
-    getIssues: vi.fn().mockResolvedValue([
+  GitHubManager: vi.fn().mockImplementation(function (this: any) {
+    this.selectRepository = vi.fn().mockResolvedValue('user/repo');
+    this.getIssues = vi.fn().mockResolvedValue([
       { number: 10, title: 'Test Issue' },
       { number: 11, title: 'Another Issue' },
-    ]),
-    getIssueDetails: vi.fn().mockResolvedValue({
+    ]);
+    this.getIssueDetails = vi.fn().mockResolvedValue({
       title: 'Test Issue',
       description: 'Test issue description',
       repo: 'user/repo',
       state: 'open',
       created_at: '2024-01-01T00:00:00Z',
       updated_at: '2024-01-02T00:00:00Z',
-    }),
-    getLabelsFromRepo: vi
+    });
+    this.getLabelsFromRepo = vi
       .fn()
-      .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]),
-    updateIssue: vi.fn().mockResolvedValue(undefined),
-  })),
+      .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]);
+    this.updateIssue = vi.fn().mockResolvedValue(undefined);
+    return this;
+  }),
 }));
 
 vi.mock('../../src/lib/openai', () => ({
@@ -216,9 +217,12 @@ describe('suggestIssueLabelsAction', () => {
 
   it('should handle errors from GitHubManager', async () => {
     const mockError = new Error('GitHub API error');
-    (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-      selectRepository: vi.fn().mockRejectedValue(mockError),
-    }));
+    (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function (
+      this: any
+    ) {
+      this.selectRepository = vi.fn().mockRejectedValue(mockError);
+      return this;
+    });
 
     await expect(suggestIssueLabelsAction('test-token')).rejects.toThrow(PublicError);
   });
@@ -235,14 +239,17 @@ describe('suggestIssueLabelsAction', () => {
   it('should handle empty issues list', async () => {
     // Reset the constructor mock for this specific test
     vi.clearAllMocks();
-    (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-      selectRepository: vi.fn().mockResolvedValue('user/repo'),
-      getIssues: vi.fn().mockResolvedValue([]),
-      getIssueDetails: vi.fn(),
-      getLabelsFromRepo: vi.fn(),
-      updateIssue: vi.fn(),
-      octokit: {},
-    }));
+    (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function (
+      this: any
+    ) {
+      this.selectRepository = vi.fn().mockResolvedValue('user/repo');
+      this.getIssues = vi.fn().mockResolvedValue([]);
+      this.getIssueDetails = vi.fn();
+      this.getLabelsFromRepo = vi.fn();
+      this.updateIssue = vi.fn();
+      this.octokit = {};
+      return this;
+    });
 
     await expect(suggestIssueLabelsAction('test-token')).rejects.toThrow(PublicError);
   });

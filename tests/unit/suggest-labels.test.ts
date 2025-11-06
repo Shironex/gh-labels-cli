@@ -4,23 +4,24 @@ import { PublicError } from '../../src/utils/errors';
 
 // Mock all dependencies
 vi.mock('../../src/lib/github', () => ({
-  GitHubManager: vi.fn().mockImplementation(() => ({
-    selectRepository: vi.fn().mockResolvedValue('user/repo'),
-    getPullRequests: vi.fn().mockResolvedValue([
+  GitHubManager: vi.fn().mockImplementation(function (this: any) {
+    this.selectRepository = vi.fn().mockResolvedValue('user/repo');
+    this.getPullRequests = vi.fn().mockResolvedValue([
       { number: 1, title: 'Test PR' },
       { number: 2, title: 'Another PR' },
-    ]),
-    getPullRequestDetails: vi.fn().mockResolvedValue({
+    ]);
+    this.getPullRequestDetails = vi.fn().mockResolvedValue({
       title: 'Test PR',
       description: 'Test description',
       files: [{ name: 'test.ts', status: 'added', additions: 10, deletions: 0 }],
       repo: 'user/repo',
-    }),
-    getLabelsFromRepo: vi
+    });
+    this.getLabelsFromRepo = vi
       .fn()
-      .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]),
-    updatePullRequest: vi.fn().mockResolvedValue(undefined),
-  })),
+      .mockResolvedValue([{ name: 'bug', color: 'ff0000', description: 'Bug report' }]);
+    this.updatePullRequest = vi.fn().mockResolvedValue(undefined);
+    return this;
+  }),
 }));
 
 vi.mock('../../src/lib/openai', () => ({
@@ -211,9 +212,12 @@ describe('suggestLabelsAction', () => {
 
   it('should handle errors from GitHubManager', async () => {
     const mockError = new Error('GitHub API error');
-    (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => ({
-      selectRepository: vi.fn().mockRejectedValue(mockError),
-    }));
+    (GitHubManager as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(function (
+      this: any
+    ) {
+      this.selectRepository = vi.fn().mockRejectedValue(mockError);
+      return this;
+    });
 
     await expect(suggestLabelsAction('test-token')).rejects.toThrow(PublicError);
   });
