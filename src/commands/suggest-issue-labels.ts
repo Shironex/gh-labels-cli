@@ -22,8 +22,11 @@ async function getIssueTemplate(
       'issue_template.md',
     ];
 
+    logger.debug(`Searching for issue template in ${repoFullName}...`);
+
     for (const templatePath of templatePaths) {
       try {
+        logger.debug(`Trying path: ${templatePath}`);
         const { data } = await github.octokit.repos.getContent({
           owner,
           repo,
@@ -32,13 +35,16 @@ async function getIssueTemplate(
 
         if ('content' in data) {
           const content = Buffer.from(data.content, 'base64').toString('utf-8');
+          logger.debug(`Found issue template at: ${templatePath}`);
           return content;
         }
       } catch {
+        logger.debug(`Template not found at: ${templatePath}`);
         continue; // Try next template path
       }
     }
 
+    logger.debug('No issue template found in any standard location');
     return undefined;
   } catch {
     logger.warning('Could not fetch issue template, proceeding without it.');

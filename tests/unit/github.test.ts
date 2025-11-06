@@ -78,13 +78,12 @@ describe('GitHubManager', () => {
       expect(customManager.octokit).toBeDefined();
     });
 
-    it('should exit if no token is provided', () => {
+    it('should throw PublicError if no token is provided', () => {
       //? Remove token from environment
       const originalToken = process.env.GITHUB_TOKEN;
       delete process.env.GITHUB_TOKEN;
 
-      expect(() => new GitHubManager()).toThrow();
-      expect(mockExit).toHaveBeenCalledWith(1);
+      expect(() => new GitHubManager()).toThrow('GitHub token is required');
 
       //? Restore token
       process.env.GITHUB_TOKEN = originalToken;

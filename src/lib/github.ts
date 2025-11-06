@@ -25,8 +25,9 @@ class GitHubManager {
     const githubToken = token || process.env.GITHUB_TOKEN;
 
     if (!githubToken) {
-      logger.error('GitHub token is required.');
-      process.exit(1);
+      throw new PublicError(
+        'GitHub token is required. Please provide a token or set GITHUB_TOKEN environment variable.'
+      );
     }
 
     this._octokit = new Octokit({ auth: githubToken });
@@ -132,8 +133,7 @@ class GitHubManager {
         per_page: 100,
       });
 
-      spinner.succeed();
-      logger.success('Labels fetched successfully!');
+      spinner.succeed('Labels fetched successfully!');
 
       // Map data to include only name, color and description
       return labels.map(label => ({
@@ -202,8 +202,7 @@ class GitHubManager {
     const spinner = ora(`Fetching repositories ...`).start();
     const { data: repos } = await this.octokit.repos.listForAuthenticatedUser();
 
-    spinner.succeed();
-    logger.success('Done!');
+    spinner.succeed('Repositories fetched successfully!');
 
     if (repos.length === 0) {
       throw new PublicError('No repositories found.');

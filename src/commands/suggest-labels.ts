@@ -22,8 +22,11 @@ async function getPRTemplate(
       'pull_request_template.md',
     ];
 
+    logger.debug(`Searching for PR template in ${repoFullName}...`);
+
     for (const templatePath of templatePaths) {
       try {
+        logger.debug(`Trying path: ${templatePath}`);
         const { data } = await github.octokit.repos.getContent({
           owner,
           repo,
@@ -32,13 +35,16 @@ async function getPRTemplate(
 
         if ('content' in data) {
           const content = Buffer.from(data.content, 'base64').toString('utf-8');
+          logger.debug(`Found PR template at: ${templatePath}`);
           return content;
         }
       } catch {
+        logger.debug(`Template not found at: ${templatePath}`);
         continue; // Try next template path
       }
     }
 
+    logger.debug('No PR template found in any standard location');
     return undefined;
   } catch {
     logger.warning('Could not fetch PR template, proceeding without it.');

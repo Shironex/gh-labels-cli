@@ -33,9 +33,8 @@ export async function getLabelsAction(token?: string) {
     // Save labels to file
     const spinner = ora('Saving labels to file...').start();
     fs.writeFileSync(outputPath, JSON.stringify(labels, null, 2));
-    spinner.succeed();
+    spinner.succeed(`Labels saved to ${outputPath}`);
 
-    logger.success(`Labels saved to ${outputPath}`);
     logger.info('You can now use these labels when adding labels to other repositories.');
   } catch (error) {
     if (error instanceof PublicError) {
