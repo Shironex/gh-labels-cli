@@ -51,8 +51,8 @@
     "@types/node": "^24.10.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
-    "@vitest/coverage-v8": "^4.0.7",
-    "@vitest/ui": "^4.0.7",
+    "@vitest/coverage-v8": "^4.0.8",
+    "@vitest/ui": "^4.0.8",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.39.1",
@@ -61,13 +61,13 @@
     "lint-staged": "^16.2.6",
     "nock": "^14.0.10",
     "prettier": "^3.6.2",
-    "semantic-release": "^25.0.1",
+    "semantic-release": "^25.0.2",
     "standard-version": "^9.5.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitepress": "^1.6.4",
-    "vitest": "^4.0.7"
+    "vitest": "^4.0.8"
   },
   "lint-staged": {
     "*.ts": [
