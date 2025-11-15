@@ -1,0 +1,52 @@
+name: Security Audit
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+      - "README.md"
+      - "LICENSE"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+      - "README.md"
+      - "LICENSE"
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: '22'
+          pnpm-version: '10'
+          install-dependencies: 'true'
+
+      - name: Run security audit
+        run: |
+          echo "🔍 Running security audit..."
+          pnpm audit --audit-level high --prod || {
+            echo "⚠️  High-severity vulnerabilities found in production dependencies!"
+            exit 1
+          }
+
+          echo "ℹ️  Running full audit for informational purposes..."
+          pnpm audit --audit-level moderate || echo "⚠️  Moderate/low vulnerabilities found in dev dependencies (informational only)"
+
