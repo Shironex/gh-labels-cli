@@ -19,15 +19,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-pnpm
         with:
-          node-version: '20'
-          pnpm-version: '9.12.3'
+          node-version: '22'
+          pnpm-version: '10'
           install-dependencies: 'true'
 
       - name: Check formatting

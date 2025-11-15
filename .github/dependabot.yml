@@ -1,6 +1,50 @@
 version: 2
 updates:
+  # NPM dependencies
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
+      - 'automated'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    reviewers:
+      - 'Shironex'
+    assignees:
+      - 'Shironex'
+    ignore:
+      # Ignore major version updates for critical dependencies
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@typescript-eslint/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'openai'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@octokit/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'semantic-release'
+        update-types: ['version-update:semver-major']
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 5
+    labels:
+      - 'ci'
+      - 'dependencies'
+      - 'automated'
+    commit-message:
+      prefix: 'ci(deps)'
+      include: 'scope'
