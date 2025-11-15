@@ -5,16 +5,16 @@ on:
     branches:
       - main
     paths-ignore:
-      - "docs/**"
-      - "README.md"
-      - "LICENSE"
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENSE'
   push:
     branches:
       - main
     paths-ignore:
-      - "docs/**"
-      - "README.md"
-      - "LICENSE"
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENSE'
   schedule:
     # Run weekly on Mondays at 9 AM UTC
     - cron: '0 9 * * 1'
@@ -49,4 +49,3 @@ jobs:
 
           echo "ℹ️  Running full audit for informational purposes..."
           pnpm audit --audit-level moderate || echo "⚠️  Moderate/low vulnerabilities found in dev dependencies (informational only)"
-

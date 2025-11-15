@@ -104,4 +104,3 @@ jobs:
               // Label might not exist, that's okay
               console.log(`Label ${labelName} might not exist yet`);
             }
-

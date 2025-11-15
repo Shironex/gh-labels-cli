@@ -59,4 +59,3 @@ jobs:
           remove-stale-when-updated: true
           ascending: true
           delete-branch: false
-

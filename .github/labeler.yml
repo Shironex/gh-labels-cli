@@ -89,4 +89,3 @@ labels:
       - any-glob-to-any-file: 'src/labels/**'
       - any-glob-to-any-file: 'src/json/**'
       - any-glob-to-any-file: 'src/templates/**'
-
