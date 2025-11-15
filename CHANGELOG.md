@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/Shironex/gh-labels-cli/compare/v1.8.0...v1.8.1) (2025-11-15)
+
+
+### Bug Fixes
+
+* remove duplicate CI workflow and fix pnpm setup order ([a94fb57](https://github.com/Shironex/gh-labels-cli/commit/a94fb57602886438febb9f538f701c5dafdbd3b6))
+
 # [1.8.0](https://github.com/Shironex/gh-labels-cli/compare/v1.7.1...v1.8.0) (2025-11-06)
 
 
