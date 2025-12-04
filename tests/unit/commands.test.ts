@@ -164,9 +164,8 @@ describe('Commands', () => {
       });
 
       //? Import real function after removing the mock
-      const { getLabelsAction: actualGetLabelsAction } = await import(
-        '../../src/commands/get-labels'
-      );
+      const { getLabelsAction: actualGetLabelsAction } =
+        await import('../../src/commands/get-labels');
 
       //? Now PublicError should be thrown
       await expect(actualGetLabelsAction()).rejects.toThrow();
