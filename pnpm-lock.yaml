@@ -28,13 +28,13 @@ importers:
         version: 13.0.2(@types/node@24.10.1)
       openai:
         specifier: ^6.9.1
-        version: 6.9.1(ws@8.18.1)(zod@4.1.13)
+        version: 6.9.1(ws@8.18.1)(zod@4.2.1)
       ora:
         specifier: ^9.0.0
         version: 9.0.0
       zod:
-        specifier: ^4.1.13
-        version: 4.1.13
+        specifier: ^4.2.1
+        version: 4.2.1
     devDependencies:
       '@commitlint/cli':
         specifier: ^20.1.0
@@ -3298,8 +3298,8 @@ packages:
       - validate-npm-package-name
       - which
 
-  nwsapi@2.2.22:
-    resolution: {integrity: sha512-ujSMe1OWVn55euT1ihwCI1ZcAaAU3nxUiDwfDQldc51ZXaB9m2AyOn6/jh1BLe2t/G8xd6uKG1UBF2aZJeg2SQ==}
+  nwsapi@2.2.23:
+    resolution: {integrity: sha512-7wfH4sLbt4M0gCDzGE6vzQBo0bfTKjU7Sfpqy/7gs1qBfYz2vEJH6vXcBKpO3+6Yu1telwd0t9HpyOoLEQQbIQ==}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -4503,8 +4503,8 @@ packages:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
     engines: {node: '>=18'}
 
-  zod@4.1.13:
-    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
+  zod@4.2.1:
+    resolution: {integrity: sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -7340,7 +7340,7 @@ snapshots:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       is-potential-custom-element-name: 1.0.1
-      nwsapi: 2.2.22
+      nwsapi: 2.2.23
       parse5: 7.3.0
       rrweb-cssom: 0.8.0
       saxes: 6.0.0
@@ -7735,7 +7735,7 @@ snapshots:
 
   npm@11.6.4: {}
 
-  nwsapi@2.2.22:
+  nwsapi@2.2.23:
     optional: true
 
   object-assign@4.1.1: {}
@@ -7764,10 +7764,10 @@ snapshots:
       regex: 6.0.1
       regex-recursion: 6.0.2
 
-  openai@6.9.1(ws@8.18.1)(zod@4.1.13):
+  openai@6.9.1(ws@8.18.1)(zod@4.2.1):
     optionalDependencies:
       ws: 8.18.1
-      zod: 4.1.13
+      zod: 4.2.1
 
   optionator@0.9.4:
     dependencies:
@@ -8908,6 +8908,6 @@ snapshots:
 
   yoctocolors@2.1.2: {}
 
-  zod@4.1.13: {}
+  zod@4.2.1: {}
 
   zwitch@2.0.4: {}
